@@ -1,0 +1,1 @@
+recursive-include pymadlib/data *.sql
