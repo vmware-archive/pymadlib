@@ -10,7 +10,7 @@ PyMADlib currently has wrappers for the following algorithms in MADlib
 1. K-Means 
 1. LDA 
 
-Refer[MADlib User Docs](http://doc.madlib.net/v0.5/ ) for MADlib's user documentation.
+Refer [MADlib User Docs](http://doc.madlib.net/v0.5/ ) for MADlib's user documentation.
 
 ***
 
@@ -55,7 +55,7 @@ that should look like so :
 >     sudo python setup.py build
 >     sudo python setup.py install
 
-1. If you use easy_install or pip, simply run :
+2. If you use easy_install or pip, simply run :
 
 >     sudo easy_install pymadlib
     
