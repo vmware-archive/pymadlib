@@ -12,8 +12,10 @@
 from utils import pivotCategoricalColumns, convertsColsToArray
 import psycopg2
 from psycopg2 import extras
+from psycopg2.extensions import cursor as _cursorbase
 
 class DBConnect(object):
+        _cursor = None
         @classmethod
         def getConnectionString(cls):
             ''' 
@@ -62,14 +64,19 @@ class DBConnect(object):
             ''' Connect to the DB using Psycopg2, if conn_str is not provided, then it is read from ~/.mydb.config file '''
             self.conn = psycopg2.connect(conn_str if conn_str else DBConnect.getConnectionString()['conn_string']) 
             
-        def getCursor(self,withhold=False):
+        def getCursor(self,withhold=True):
             ''' Return a named cursor '''  
-            return self.conn.cursor('my_unique_cursor',cursor_factory=extras.DictCursor,withhold=withhold) 
+            if(self._cursor and not self._cursor.closed):
+                self._cursor.close()
+            self._cursor = self.conn.cursor('my_unique_cursor',cursor_factory=extras.DictCursor,withhold=withhold)
+  
+            return self._cursor
         
         def executeQuery(self,query):
             ''' Execute a Query '''
             import sys
-            cursor = self.conn.cursor()     
+            cursor = self.conn.cursor() 
+            self._cursor = cursor    
             try:
                 cursor.execute(query)
                 self.conn.commit()
@@ -95,12 +102,82 @@ class DBConnect(object):
                ========
                A list of all rows fetch from the cursor
             '''
-            rows = []
-            for row in cursor:
-                rows.append(row)
+            rows = [r for r in cursor]
             cursor.close()
             return rows
         
+        
+        def fetchColumns(self, rowset, columns=[]):
+            """
+               Fetch the specified columns from the cursor. If columns is empty, all columns will be fetched.
+               Inputs:
+               ======
+               cursor : A cursor object (pointing to the result of a query execution)
+               columns : The list of columns to be fetched
+               
+               Outputs:
+               ========
+               A list of all columns fetched 
+            """
+            cols = {}
+            for row in rowset:
+                keys = row.keys() if not columns else columns
+                for k in keys:
+                    if(cols.has_key(k)):
+                        cols[k].append(row.get(k))
+                    else:
+                        cols[k] = [row.get(k)]
+            if(isinstance(rowset,_cursorbase)):
+                rowset.close()
+            return cols
+
+        def printTable(self, cursor, columns=[]):
+            '''
+            Print the rows of the table the cursor is pointing to.
+            Inputs:
+            =======
+            cursor : A cursor object pointing to the result of a query executed.
+            columns : (Optional) if only a subset of the columns of the table need to be printed, it can be included in this argument
+            
+            Output:
+            =======
+            Prints rows of the table
+            It also returns the rows as a list
+            '''
+            rows = self.fetchRowsFromCursor(cursor)
+            separator = '\t | '
+            printedHeader = False
+            
+            def printHeader(_cols,separator):
+                """
+                   Print the header row
+                """
+                widths = [len(k) for k in _cols]
+                filler = []
+                for w in widths:
+                    filler.append(''.join(['-' for _x in range(w)]))
+                print separator.join(filler)
+                print separator.join(columns)
+                print separator.join(filler)
+                
+            if(columns):
+                printHeader(columns,separator)
+                printedHeader = True
+
+            for r in rows:
+                if (not printedHeader):
+                    printHeader(r.keys(),separator)
+                    printedHeader = True
+                    
+                results = []
+                if not columns:
+                    results = [r.get(k) for k in r.keys()]
+                else:
+                    results = [r.get(c) for c in columns]      
+                print separator.join([str(k) for k in results]) 
+                
+            print '\n\n'
+            return rows
       
 class SupervisedLearning(object):
         ''' Base class for all supervised ML algorithms in MADlib '''
