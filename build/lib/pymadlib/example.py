@@ -73,36 +73,27 @@ def linearRegressionDemo(conn):
     '''
     lreg = LinearRegression(conn)
     lreg.train('public.wine_training_set',['1','alcohol','proline','hue','color_intensity','flavanoids'],'quality')
-    result_set = conn.fetchRowsFromCursor(lreg.predict('public.wine_test_set','quality'))
-    print '\n\n Linear Regression Predictions:'
-    print '\t | '.join(['id','actual', 'predicted'])
-    print '-----------------------------------------'
-    actual = []
-    predicted = []
-    for r in result_set:
-        result = [r.get('id'), r.get('quality'), r.get('prediction')]
-        actual.append(r.get('quality'))
-        predicted.append(r.get('prediction'))                        
-        print '\t | '.join([str(k) for k in result])
-        
+    cursor = lreg.predict('public.wine_test_set','quality')
+    rowset = conn.printTable(cursor,['id','quality','prediction'])
+    cols = conn.fetchColumns(rowset,['quality','prediction'])
+
+    actual = cols['quality']
+    predicted = cols['prediction'] 
     scatterPlot(actual,predicted, 'wine_test_set')        
+
         
     # 1 b) Linear Regression with categorical variables 
     # We'll use the auto_mpg dataset from UCI : http://archive.ics.uci.edu/ml/machine-learning-databases/autos/imports-85.names
     # make, fuel_type, fuel_system are all categorical variables, rest are real.
     lreg.train('public.auto_mpg_train',['1','height','width','length','highway_mpg','engine_size','make','fuel_type','fuel_system'],'price')
-    result_set = conn.fetchRowsFromCursor(lreg.predict('public.auto_mpg_test','price'))
-    print '\n\n Linear Regression Predictions (with categorical variables) :'
-    print '\t | '.join(['id','actual', 'predicted'])
-    print '-----------------------------------------'
-    actual = []
-    predicted = []
-    for r in result_set:
-        result = [r.get('id'), r.get('price'), r.get('prediction')]
-        actual.append(r.get('price'))
-        predicted.append(r.get('prediction'))        
-        print '\t | '.join([str(k) for k in result])       
     
+    cursor = lreg.predict('public.auto_mpg_test','price')
+    rowset = conn.printTable(cursor,['id','price','prediction'])
+    cols = conn.fetchColumns(rowset,['price','prediction'])
+    
+    print '\n\n Linear Regression Predictions (with categorical variables) :'    
+    actual = cols['price']
+    predicted = cols['prediction'] 
     scatterPlot(actual,predicted, 'auto_mpg_test')    
     
 def logisticRegDemo(conn):
@@ -113,27 +104,24 @@ def logisticRegDemo(conn):
     # a) Logistic Regression with numeric attributes
     log_reg = LogisticRegression(conn)
     log_reg.train('public.wine_bool_training_set','indep','quality_label')
-    result_set = conn.fetchRowsFromCursor(log_reg.predict('public.wine_bool_test_set','',0.5))
-    print '\n\n Logistic Regression predictions :'
-    print '\t | '.join(['id','actual', 'predicted'])
-    print '-----------------------------------------'
-    for r in result_set:
-        result = [r.get('id'), r.get('quality_label'), r.get('prediction')]
-        print '\t | '.join([str(k) for k in result])   
-        
+    cursor = log_reg.predict('public.wine_bool_test_set','',0.5)
+    conn.printTable(cursor,['id','quality_label','prediction'])
+            
     # b) ROC curve for Logistic Regression using numeric features alone, 
     # Note: Here threshold is set to None, to be able to plot ROC curve    
-    result_set = conn.fetchRowsFromCursor(log_reg.predict('wine_bool_test_set','',None))
-    actual = [r.get('quality_label') for r in result_set]
-    predicted = [r.get('prediction') for r in result_set]
+    cursor = log_reg.predict('wine_bool_test_set','',None)
+    cols = conn.fetchColumns(cursor,['quality_label','prediction'])
+    actual = cols['quality_label']
+    predicted = cols['prediction']
     #show ROC curve
     ROCPlot('ROC curve Logistic Reg. on Continuous Features ',['Logistic Regression'],actual,predicted)
     
     # c) Logistic Regression with mixture of numeric and categorical columns     
     log_reg.train('public.auto_mpg_bool_train',['1','height','width','length','highway_mpg','engine_size','make','fuel_type','fuel_system'],'is_expensive')
-    result_set = conn.fetchRowsFromCursor(log_reg.predict('auto_mpg_bool_test','is_expensive',None))
-    actual = [r.get('is_expensive') for r in result_set]
-    predicted = [r.get('prediction') for r in result_set]  
+    cursor = log_reg.predict('auto_mpg_bool_test','is_expensive',None)
+    cols = conn.fetchColumns(cursor,['is_expensive','prediction'])
+    actual = cols['is_expensive']
+    predicted = cols['prediction']  
     ROCPlot('ROC curve Logistic Reg. including categorical data',['Logistic Regression'],actual,predicted)  
     
 def __svmDemoCleanup__(conn):
@@ -181,12 +169,9 @@ def svmDemo(conn):
                        where t1.id = t2.id;
                    '''
                   )
-    result_set = conn.fetchRowsFromCursor(cursor)
+
     print 'SVM Batch prediction results'
-    print '\t | '.join(['id','actual_label','predicted_label'])
-    print '-------------------------------------------'
-    for r in result_set:
-        print '\t | '.join([str(el) for el in r]) 
+    conn.printTable(cursor)
     __svmDemoCleanup__(conn) 
     
 def kmeansDemo(conn):
@@ -195,18 +180,14 @@ def kmeansDemo(conn):
     '''          
     #a) K-Means with random initialization of centroids
     kmeans = KMeans(conn)
-    rset,mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3)   
-    centroids_random_kmeans = str(rset[0].get('centroids'))
+    print '\n\nKMeans with random cluster initialization'
+    mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3)   
+    centroids_random_kmeans = str(mdl.get('centroids'))
     centroids_random_kmeans = centroids_random_kmeans.replace('[','{').replace(']','}')
-    print 'KMeans with random cluster initialization'
-    for key in mdl.keys():
-        print key,'  :  ',mdl[key]
     
     #b) KMeans Plus Plus 
-    print 'KMeans Plus Plus '
-    rset, mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3,'kmeanspp') 
-    for key in mdl.keys():
-        print key,'  :  ',mdl[key]   
+    print '\n\nKMeans Plus Plus '
+    mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3,'kmeanspp') 
     
     #Show a visualization of the clusters.
     #1) Compute the strength of the relationship between all pairs of points and capture this in a graph
@@ -482,14 +463,7 @@ def conn_test():
     conn = DBConnect()
     cursor = conn.getCursor(True)
     cursor.executeQuery('select * from wine_training_set')
-    print 'cursor',dir(cursor)
-    rowNum=0
-    for row in cursor:
-        if(rowNum==0):
-            print ','.join(row.keys())
-        rowNum+=1
-        print ','.join([str(k) for k in row.values()])
-    cursor.close()        
+    conn.printTable(cursor)        
 
 def pyMADlibDemo():
     ''' 

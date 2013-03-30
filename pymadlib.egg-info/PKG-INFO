@@ -1,8 +1,8 @@
 Metadata-Version: 1.0
 Name: pymadlib
-Version: 0.1.1
+Version: 0.1.3
 Summary: A Python wrapper for MADlib (http://madlib.net) - an open source library for scalable in-database machine learning algorithms
-Home-page: UNKNOWN
+Home-page: http://vatsan.github.com/pymadlib
 Author: Srivatsan Ramanujam
 Author-email: vatsan.cs@utexas.edu
 License: LICENSE.txt

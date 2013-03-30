@@ -180,18 +180,14 @@ def kmeansDemo(conn):
     '''          
     #a) K-Means with random initialization of centroids
     kmeans = KMeans(conn)
-    rset,mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3)   
-    centroids_random_kmeans = str(rset[0].get('centroids'))
+    print '\n\nKMeans with random cluster initialization'
+    mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3)   
+    centroids_random_kmeans = str(mdl.get('centroids'))
     centroids_random_kmeans = centroids_random_kmeans.replace('[','{').replace(']','}')
-    print 'KMeans with random cluster initialization'
-    for key in mdl.keys():
-        print key,'  :  ',mdl[key]
     
     #b) KMeans Plus Plus 
-    print 'KMeans Plus Plus '
-    rset, mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3,'kmeanspp') 
-    for key in mdl.keys():
-        print key,'  :  ',mdl[key]   
+    print '\n\nKMeans Plus Plus '
+    mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3,'kmeanspp') 
     
     #Show a visualization of the clusters.
     #1) Compute the strength of the relationship between all pairs of points and capture this in a graph

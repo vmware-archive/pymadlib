@@ -12,8 +12,10 @@
 from utils import pivotCategoricalColumns, convertsColsToArray
 import psycopg2
 from psycopg2 import extras
+from psycopg2.extensions import cursor as _cursorbase
 
 class DBConnect(object):
+        _cursor = None
         @classmethod
         def getConnectionString(cls):
             ''' 
@@ -62,14 +64,19 @@ class DBConnect(object):
             ''' Connect to the DB using Psycopg2, if conn_str is not provided, then it is read from ~/.mydb.config file '''
             self.conn = psycopg2.connect(conn_str if conn_str else DBConnect.getConnectionString()['conn_string']) 
             
-        def getCursor(self,withhold=False):
+        def getCursor(self,withhold=True):
             ''' Return a named cursor '''  
-            return self.conn.cursor('my_unique_cursor',cursor_factory=extras.DictCursor,withhold=withhold) 
+            if(self._cursor and not self._cursor.closed):
+                self._cursor.close()
+            self._cursor = self.conn.cursor('my_unique_cursor',cursor_factory=extras.DictCursor,withhold=withhold)
+  
+            return self._cursor
         
         def executeQuery(self,query):
             ''' Execute a Query '''
             import sys
-            cursor = self.conn.cursor()     
+            cursor = self.conn.cursor() 
+            self._cursor = cursor    
             try:
                 cursor.execute(query)
                 self.conn.commit()
@@ -95,12 +102,149 @@ class DBConnect(object):
                ========
                A list of all rows fetch from the cursor
             '''
-            rows = []
-            for row in cursor:
-                rows.append(row)
+            rows = [r for r in cursor]
             cursor.close()
             return rows
         
+        
+        def fetchColumns(self, rowset, columns=[]):
+            """
+               Fetch the specified columns from the cursor. If columns is empty, all columns will be fetched.
+               Inputs:
+               ======
+               cursor : A cursor object (pointing to the result of a query execution)
+               columns : The list of columns to be fetched
+               
+               Outputs:
+               ========
+               A list of all columns fetched 
+            """
+            cols = {}
+            for row in rowset:
+                keys = row.keys() if not columns else columns
+                for k in keys:
+                    if(cols.has_key(k)):
+                        cols[k].append(row.get(k))
+                    else:
+                        cols[k] = [row.get(k)]
+            if(isinstance(rowset,_cursorbase)):
+                rowset.close()
+            return cols
+
+        def printTable(self, cursor, columns=[]):
+            '''
+            Print the rows of the table the cursor is pointing to.
+            Inputs:
+            =======
+            cursor : A cursor object pointing to the result of a query executed.
+            columns : (Optional) if only a subset of the columns of the table need to be printed, it can be included in this argument
+            
+            Output:
+            =======
+            Prints rows of the table
+            It also returns the rows as a list
+            '''
+            rows = self.fetchRowsFromCursor(cursor)
+            separator = '\t | '
+            formatter = ''
+            printedHeader = False
+            filler = ['-' for _k in range(80)]
+            
+            def printHeader(_cols,separator):
+                """
+                   Print the header row
+                """
+                widths = [len(k) for k in _cols]
+                max_width = max(widths)+5
+                formatter = '{:<'+str(max_width)+'}'
+                cnames = [formatter.format(c) for c in columns]
+                
+                print ''.join(filler)
+                print separator.join(cnames)
+                print ''.join(filler)
+                
+                return formatter
+            
+            def printFooter():
+                """
+                   Print the footer
+                """
+                print ''.join(filler)
+                print ''
+                
+                
+            if(columns):
+                formatter = printHeader(columns,separator)
+                printedHeader = True
+
+            for r in rows:
+                if (not printedHeader):
+                    formatter = printHeader(r.keys(),separator)
+                    printedHeader = True
+                    
+                results = []
+                if not columns:
+                    results = [r.get(k) for k in r.keys()]
+                else:
+                    results = [r.get(c) for c in columns]      
+                print separator.join([formatter.format(str(k)) for k in results]) 
+            
+            printFooter()    
+            print '\n\n'
+            
+            return rows
+        
+        def fetchModelParams(self,row_set):
+            """
+            Given a rowset from table containing the model, return the model params as a dict
+            """
+            _model = {}
+            for r in row_set:
+                for k in r.keys():
+                    _model[k] = r.get(k)
+                    
+            return _model
+        
+        def printModel(self,rowset):
+            """
+               Print the model co-efficients from the cursor and return a dict representing the model coefficients.
+               Inputs:
+               =======
+               rowset : A rowset from a table containing the model parameters
+            
+               Outputs:
+               ========
+               Prints the model coefficients
+            """
+            
+            separator = '\t | '
+            filler = ['-' for _k in range(160)]
+            
+            def printHeader():
+                """
+                   Print the header row
+                """
+                print ''.join(filler)
+                print '             Model Parameters'
+                print ''.join(filler)
+                
+            def printFooter():
+                """
+                   Print footer
+                """
+                print ''.join(filler)
+                print ''
+                
+            printHeader()
+            
+            for r in rowset:
+                key_widths = [len(k) for k in r.keys()]
+                max_width = max(key_widths)+5
+                formatter = '{:<'+str(max_width)+'}'
+                for key in r.keys():
+                    print formatter.format(key),separator,str(r.get(key))
+
+            printFooter()
       
 class SupervisedLearning(object):
         ''' Base class for all supervised ML algorithms in MADlib '''
@@ -142,17 +286,12 @@ class LinearRegression(SupervisedLearning):
               The function also returns the model object.
               
             '''
-            
-            print 'indep :',indep
-            print 'dep :',dep        
+                 
             indep_org = indep
             
             #Transform the columns if any of them are categorical
             table_name, indep, dep, col_distinct_vals_dict = pivotCategoricalColumns(self.dbconn,table_name, indep, dep)
             #
-            print 'transformed table:',table_name
-            print 'transformed indep:', indep
-            print 'transformed dep:', dep
                       
             self.model = {}
             self.model['indep'] = 'array[{0}]'.format(','.join(indep))
@@ -160,28 +299,24 @@ class LinearRegression(SupervisedLearning):
             self.model['col_distinct_vals_dict'] = col_distinct_vals_dict
             self.model['dep'] = dep
             cursor = self.dbconn.getCursor()
+            
             stmt = '''
                       select (madlib.linregr({dep},{indep})).* 
                       from {table_name}
                    '''
             stmt = stmt.format(dep=dep,indep=self.model['indep'], table_name=table_name) 
         
-            print 'statement :',stmt
-            print '\n\n' 
+            print '\nstatement :',stmt
+            print '\n'
             
             cursor.execute(stmt)
-            rowCount = 0
-            for row in cursor:
-                if(rowCount==0):
-                    print '\t| '.join(row.keys())
-                    print '-------------------------------------------------------------------------------'
-                rowCount+=1
-                #Store the model coefficients
-                for key in row.keys():
-                    self.model[key] = row[key]
-                print '\t| '.join([str(row[key]) for key in row.keys()])
-                
-            cursor.close()
+            row_set = self.dbconn.fetchRowsFromCursor(cursor)
+            mdl_params = self.dbconn.fetchModelParams(row_set)
+            self.dbconn.printModel(row_set)
+            
+            for param in mdl_params:
+                self.model[param] = mdl_params[param]
+            
             return self.model
         
         def predict(self, predict_table_name, actual_label_col=''):
@@ -267,22 +402,18 @@ class LogisticRegression(SupervisedLearning):
                                precision=precision
                               ) 
             
-            print 'statement :',stmt
-            print '\n\n' 
+            print '\nstatement :',stmt
+            print '\n' 
             cursor = self.dbconn.getCursor()
             cursor.execute(stmt)
-            rowCount = 0
-            for row in cursor:
-                if(rowCount==0):
-                    print '\t| '.join(row.keys())
-                    print '---------------------------------------------------------------------------------------------------'                  
-                rowCount+=1
-                #Store the model coefficients
-                for key in row.keys():
-                    self.model[key] = row[key]
-                print '\t| '.join([str(row[key]) for key in row.keys()])
+            
+            row_set = self.dbconn.fetchRowsFromCursor(cursor)
+            mdl_params = self.dbconn.fetchModelParams(row_set)
+            self.dbconn.printModel(row_set)
+            
+            for param in mdl_params:
+                self.model[param] = mdl_params[param]
                 
-            cursor.close()
             return self.model
         
         def predict(self, predict_table_name,actual_label_col='',threshold=0.5):
@@ -329,8 +460,8 @@ class LogisticRegression(SupervisedLearning):
                                   table_name=predict_table_name
                                  )
 
-            print 'statement:',stmt
-            print '\n\n'
+            print '\nstatement:',stmt
+            print '\n'
             
             cursor = self.dbconn.getCursor()
             cursor.execute(stmt)
@@ -440,22 +571,18 @@ class SVM(SupervisedLearning):
                                   )                                             
                
             
-            print 'SVM : statement :',stmt
-            print '\n\n' 
+            print '\nstatement :',stmt
+            print '\n' 
             
             cursor.execute(stmt)
-            rowCount = 0
-            for row in cursor:
-                if(rowCount==0):
-                    print '\t| '.join(row.keys())
-                    print '-------------------------------------------------------------------------------'                  
-                rowCount+=1
-                #Store the model coefficients
-                for key in row.keys():
-                    self.model[key] = row[key]
-                print '\t| '.join([str(row[key]) for key in row.keys()])
+            
+            row_set = self.dbconn.fetchRowsFromCursor(cursor)
+            mdl_params = self.dbconn.fetchModelParams(row_set)
+            #self.dbconn.printModel(row_set)
+            
+            for param in mdl_params:
+                self.model[param] = mdl_params[param]
                 
-            cursor.close()
             return self.model
             
         def predict(self, new_instance):
@@ -490,8 +617,8 @@ class SVM(SupervisedLearning):
                                   new_instance=new_instance                     
                                  )
                               
-            print 'statement:',stmt
-            print '\n\n'
+            print '\nstatement:',stmt
+            print '\n'
             
             cursor = self.dbconn.getCursor()
             cursor.execute(stmt)
@@ -517,7 +644,8 @@ class SVM(SupervisedLearning):
                 algo_name =  'svm_predict_batch'
             #Linear SVM    
             elif(self.model['kernel_func']==None):
-                algo_name =  'lsvm_predict_batch'                
+                algo_name =  'lsvm_predict_batch'        
+                        
             stmt = '''
                       select madlib.{algo_name}('{input_table}','{data_col}','{id_col}','{model_table}','{output_table}',{parallel}); 
                    '''.format(algo_name=algo_name,
@@ -527,9 +655,10 @@ class SVM(SupervisedLearning):
                               output_table=output_table,
                               model_table = self.model['model_table'],
                               parallel=self.model['parallel']                    
-                             )                                              
-            print 'statement:',stmt
-            print '\n\n'
+                             )   
+                                                              
+            print '\nstatement:',stmt
+            print '\n'
             self.dbconn.executeQuery(stmt)
             #Return a cursor to the output table
             stmt = '''select * from {output_table};'''.format(output_table=output_table)
@@ -562,7 +691,7 @@ class KMeans(object):
                
                Outputs:
                ========
-               Row set containing the results of running K-Means
+               Returns the model, which includes the centroids etc
                
             '''          
             if(seeding_method=='kmeanspp'):          
@@ -637,26 +766,19 @@ class KMeans(object):
             cursor = self.dbconn.getCursor()
             self.model = {}
             
-            print 'statement :',stmt
-            print '\n\n' 
+            print '\nstatement :',stmt
+            print '\n' 
             
             cursor.execute(stmt)
             
-            rowCount = 0
-            row_set = []
-            for row in cursor:
-                if(rowCount==0):
-                    print '\t| '.join(row.keys())
-                    print '-------------------------------------------------------------------------------'                  
-                rowCount+=1
-                
-                #Store the model coefficients
-                for key in row.keys():
-                    self.model[key] = row[key]
-                print '\t| '.join([str(row[key]) for key in row.keys()])
-                row_set.append(row)
-            cursor.close()               
-            return row_set, self.model  
+            row_set = self.dbconn.fetchRowsFromCursor(cursor)
+            mdl_params = self.dbconn.fetchModelParams(row_set)
+            self.dbconn.printModel(row_set)
+            
+            for param in mdl_params:
+                self.model[param] = mdl_params[param]
+                              
+            return self.model  
       
 class PLDA(object):
         ''' 
@@ -703,7 +825,8 @@ class PLDA(object):
                               numTopics=numTopics,
                               alpha=alpha,
                               eta=eta
-                             )                 
+                             ) 
+               
             self.dbconn.executeQuery(stmt)
             stmt = ''' select id, (topics).topics, (topics).topic_d
                        from {outputTable};
