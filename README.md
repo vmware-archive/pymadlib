@@ -62,6 +62,11 @@ that should look like so :
 
 ***
 
+## Usage Tutorial
+
+Visit [PyMADlib Tutorial](http://nbviewer.ipython.org/5275846) for a tutorial on using PyMADlib
+Also visit [PyMADlib IPython NB](https://gist.github.com/vatsan/5275846) to download the IPython NB tutorial
+
 
 ## Running the Demos
 
