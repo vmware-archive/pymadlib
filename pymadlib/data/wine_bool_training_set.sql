@@ -16,7 +16,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: wine_bool_training_set; Type: TABLE; Schema: public; Owner: gpadmin; Tablespace: 
+-- Name: wine_bool_training_set; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE wine_bool_training_set (
@@ -26,10 +26,8 @@ CREATE TABLE wine_bool_training_set (
 ) DISTRIBUTED BY (id);
 
 
-ALTER TABLE public.wine_bool_training_set OWNER TO gpadmin;
-
 --
--- Data for Name: wine_bool_training_set; Type: TABLE DATA; Schema: public; Owner: gpadmin
+-- Data for Name: wine_bool_training_set; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY wine_bool_training_set (id, indep, quality_label) FROM stdin;

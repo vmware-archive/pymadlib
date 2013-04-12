@@ -16,7 +16,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: wine_training_set; Type: TABLE; Schema: public; Owner: gpadmin; Tablespace: 
+-- Name: wine_training_set; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE wine_training_set (
@@ -38,10 +38,8 @@ CREATE TABLE wine_training_set (
 ) DISTRIBUTED BY (id);
 
 
-ALTER TABLE public.wine_training_set OWNER TO gpadmin;
-
 --
--- Data for Name: wine_training_set; Type: TABLE DATA; Schema: public; Owner: gpadmin
+-- Data for Name: wine_training_set; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY wine_training_set (id, alcohol, mmalic_acid, ash, alcalinity_of_ash, magnesium, total_phenols, flavanoids, nonflavanoid_phenols, proanthocyanins, color_intensity, hue, od280, proline, quality) FROM stdin;

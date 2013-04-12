@@ -16,7 +16,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: debate_obama_tokens_temp; Type: TABLE; Schema: public; Owner: gpadmin; Tablespace: 
+-- Name: debate_obama_tokens_temp; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE debate_obama_tokens_temp (
@@ -25,10 +25,8 @@ CREATE TABLE debate_obama_tokens_temp (
 ) DISTRIBUTED BY (id);
 
 
-ALTER TABLE public.debate_obama_tokens_temp OWNER TO gpadmin;
-
 --
--- Data for Name: debate_obama_tokens_temp; Type: TABLE DATA; Schema: public; Owner: gpadmin
+-- Data for Name: debate_obama_tokens_temp; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY debate_obama_tokens_temp (id, contents) FROM stdin;

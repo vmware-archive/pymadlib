@@ -16,7 +16,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: debate_lda_dict; Type: TABLE; Schema: public; Owner: gpadmin; Tablespace: 
+-- Name: debate_lda_dict; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE debate_lda_dict (
@@ -24,10 +24,8 @@ CREATE TABLE debate_lda_dict (
 ) DISTRIBUTED BY (dict);
 
 
-ALTER TABLE public.debate_lda_dict OWNER TO gpadmin;
-
 --
--- Data for Name: debate_lda_dict; Type: TABLE DATA; Schema: public; Owner: gpadmin
+-- Data for Name: debate_lda_dict; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY debate_lda_dict (dict) FROM stdin;

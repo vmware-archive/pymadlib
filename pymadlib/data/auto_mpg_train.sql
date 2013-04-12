@@ -16,7 +16,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: auto_mpg_train; Type: TABLE; Schema: public; Owner: gpadmin; Tablespace: 
+-- Name: auto_mpg_train; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE TABLE auto_mpg_train (
@@ -50,10 +50,8 @@ CREATE TABLE auto_mpg_train (
 ) DISTRIBUTED BY (id);
 
 
-ALTER TABLE public.auto_mpg_train OWNER TO gpadmin;
-
 --
--- Data for Name: auto_mpg_train; Type: TABLE DATA; Schema: public; Owner: gpadmin
+-- Data for Name: auto_mpg_train; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY auto_mpg_train (id, symboling, normalized_losses, make, fuel_type, aspiration, num_of_doors, body_style, drive_wheels, engine_location, wheel_base, length, width, height, curb_weight, engine_type, num_of_cylinders, engine_size, fuel_system, bore, stroke, compression_ratio, horsepower, peak_rpm, city_mpg, highway_mpg, price) FROM stdin;
