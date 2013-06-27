@@ -16,14 +16,14 @@
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
         <header class="inner">
-          <a id="forkme_banner" href="https://github.com/vatsan/pymadlib">View on GitHub</a>
+          <a id="forkme_banner" href="https://github.com/gopivotal/pymadlib">View on GitHub</a>
 
           <h1 id="project_title">PyMADlib</h1>
           <h2 id="project_tagline">A Python wrapper for MADlib  - an open source library for scalable in-database machine learning algorithms</h2>
 
             <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/vatsan/pymadlib/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/vatsan/pymadlib/tarball/master">Download this project as a tar.gz file</a>
+              <a class="zip_download_link" href="https://github.com/gopivotal/pymadlib/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/gopivotal/pymadlib/tarball/master">Download this project as a tar.gz file</a>
             </section>
         </header>
     </div>
@@ -33,7 +33,8 @@
       <section id="main_content" class="inner">
         <p>Now you can have the number crunching power of <a href="http://madlib.net">MADlib</a> along with the cool visualizations of Matplotlib, NetworkX and all your other Python libraries. Let MADlib do all the heavy-lifting on your Greenplum Appliance, while you program in your favorite language - Python!</p>
 
-<h2>Algorithms</h2>
+<h2>
+<a name="algorithms" class="anchor" href="#algorithms"><span class="octicon octicon-link"></span></a>Algorithms</h2>
 
 <p>PyMADlib currently has wrappers for the following algorithms in MADlib</p>
 
@@ -45,7 +46,8 @@
 <li>LDA </li>
 </ol><p>Refer<a href="http://doc.madlib.net/v0.5/">MADlib User Docs</a> for MADlib's user documentation.</p>
 
-<hr><h2>Dependencies</h2>
+<hr><h2>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h2>
 
 <ol>
 <li>You'll need the python extension <em><strong>psycopg2</strong></em> to use PyMADlib.</li>
@@ -53,7 +55,8 @@
 <li>If you have installed <a href="http://networkx.github.com/download.html">networkx</a>, you'll see a visualization of the k-means demo</li>
 <li>
 <a href="https://github.com/marcelcaraciolo/PyROC">PyROC</a> is included in the source of this distribution with permission from its developer. You'll see a visualization of the ROC curves for Logistic Regression.</li>
-</ol><hr><h2>Configurations</h2>
+</ol><hr><h2>
+<a name="configurations" class="anchor" href="#configurations"><span class="octicon octicon-link"></span></a>Configurations</h2>
 
 <p>To configure your DB Connection parameters
 You should create a file in your home directory</p>
@@ -75,7 +78,8 @@ database = vatsandb (the database you wish to connect to)
 </code></pre>
 </blockquote>
 
-<hr><h2>Installation Instructions</h2>
+<hr><h2>
+<a name="installation-instructions" class="anchor" href="#installation-instructions"><span class="octicon octicon-link"></span></a>Installation Instructions</h2>
 
 <ol>
 <li>You may install pymadlib by downloading the source (from PyPI) and then run the following</li>
@@ -92,12 +96,8 @@ sudo python setup.py install
 </code></pre>
 </blockquote>
 
-<hr><h2>Usage Tutorial</h2>
-
-<p>Visit <a href="http://nbviewer.ipython.org/5275846">PyMADlib Tutorial</a> for a tutorial on using PyMADlib</p>
-<p>Also visit <a href="https://gist.github.com/vatsan/5275846">PyMADlib IPython NB</a>  to download the IPython NB tutorial</p>
-
-<hr><h2>Running the Demos</h2>
+<hr><h2>
+<a name="running-the-demos" class="anchor" href="#running-the-demos"><span class="octicon octicon-link"></span></a>Running the Demos</h2>
 
 <p>You may run the demo from the extracted directory of pymadlib like so :</p>
 
@@ -115,7 +115,8 @@ sudo python setup.py install
 
 <p>Remember to close the Matplotlib windows that pop-up to continue with the rest of the demo.</p>
 
-<hr><h2>Gallery</h2>
+<hr><h2>
+<a name="gallery" class="anchor" href="#gallery"><span class="octicon octicon-link"></span></a>Gallery</h2>
 
 <p><img src="https://lh3.googleusercontent.com/-bXz3gCrnQFo/UTu3lXFKbeI/AAAAAAAAKgI/Hpjsqzb_GTQ/w776-h714-p-o-k/kmeans_networkx_viz.png" alt="K-Means Cluster Visualization"></p>
 
@@ -127,7 +128,8 @@ sudo python setup.py install
 
 <p><img src="https://lh6.googleusercontent.com/-H-3h0bV8EDQ/UTu3lyED9YI/AAAAAAAAKgY/CcoJ2oSme2M/s353-c-o-k/random_networkx_viz.png" alt="Random graph visualization - Networkx"></p>
 
-<hr><h2>Datasets packaged with this installation</h2>
+<hr><h2>
+<a name="datasets-packaged-with-this-installation" class="anchor" href="#datasets-packaged-with-this-installation"><span class="octicon octicon-link"></span></a>Datasets packaged with this installation</h2>
 
 <p>PyMADlib packages publicly available datasets from the UCI machine learning repository and other sources.</p>
 
@@ -136,20 +138,22 @@ sudo python setup.py install
 <li><a href="http://archive.ics.uci.edu/ml/datasets/Auto+MPG">Auto MPG dataset from UCI ML repository from UCI Machine Learning repository</a></li>
 <li><a href="http://archive.ics.uci.edu/ml/datasets/Wine+Quality">Wine quality dataset from UCI Machine Learning repository</a></li>
 <li>Obama-Romney second presidential debate (2012) transcripts</li>
-</ol><hr><h2>Installation Issues</h2>
+</ol><hr><h2>
+<a name="installation-issues" class="anchor" href="#installation-issues"><span class="octicon octicon-link"></span></a>Installation Issues</h2>
 
 <p>Installing PyMADlib using distutils should automatically install the dependent library psycopg2, which is required to connect to a Postgres database where MADlib is installed. If you are using Mac OSX 10.6.x you may run into issues with installing psycopg2.</p>
 
 <p><a href="http://hardlifeofapo.com/psycopg2-and-postgresql-9-1-on-snow-leopard/">psycopg2-and-postgresql-9-1-on-snow-leopard</a> and <a href="http://www.initd.org/psycopg/articles/2010/11/11/links-about-building-psycopg-mac-os-x/">links-about-building-psycopg-mac-os-x</a> discuss some issues and offer some solutions.</p>
 
-<hr><h5>Srivatsan Ramanujam <a href="mailto:vatsan.cs@utexas.edu">vatsan.cs@utexas.edu</a>, 3 Jan 2013</h5>
+<hr><h5>
+<a name="srivatsan-ramanujam-vatsancsutexasedu-3-jan-2013" class="anchor" href="#srivatsan-ramanujam-vatsancsutexasedu-3-jan-2013"><span class="octicon octicon-link"></span></a>Srivatsan Ramanujam <a href="mailto:vatsan.cs@utexas.edu">vatsan.cs@utexas.edu</a>, 3 Jan 2013</h5>
       </section>
     </div>
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">PyMADlib maintained by <a href="https://github.com/vatsan">vatsan</a></p>
+        <p class="copyright">PyMADlib maintained by <a href="https://github.com/gopivotal">gopivotal</a></p>
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
