@@ -31,7 +31,7 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <p>Now you can have the number crunching power of <a href="http://madlib.net">MADlib</a> along with the cool visualizations of Matplotlib, NetworkX and all your other Python libraries. Let MADlib do all the heavy-lifting on your Greenplum Appliance, while you program in your favorite language - Python!</p>
+        <p>A Python wrapper for MADlib - an open source library for scalable in-database machine learning algorithms</p>
 
 <h2>
 <a name="algorithms" class="anchor" href="#algorithms"><span class="octicon octicon-link"></span></a>Algorithms</h2>
@@ -44,7 +44,7 @@
 <li>SVM (regression &amp; classification)</li>
 <li>K-Means </li>
 <li>LDA </li>
-</ol><p>Refer<a href="http://doc.madlib.net/v0.5/">MADlib User Docs</a> for MADlib's user documentation.</p>
+</ol><p>Refer <a href="http://doc.madlib.net/v0.5/">MADlib User Docs</a> for MADlib's user documentation.</p>
 
 <hr><h2>
 <a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h2>
@@ -97,6 +97,12 @@ sudo python setup.py install
 </blockquote>
 
 <hr><h2>
+<a name="usage-tutorial" class="anchor" href="#usage-tutorial"><span class="octicon octicon-link"></span></a>Usage Tutorial</h2>
+
+<p>Visit <a href="http://nbviewer.ipython.org/5275846">PyMADlib Tutorial</a> for a tutorial on using PyMADlib
+Also visit <a href="https://gist.github.com/vatsan/5275846">PyMADlib IPython NB</a> to download the IPython NB tutorial</p>
+
+<h2>
 <a name="running-the-demos" class="anchor" href="#running-the-demos"><span class="octicon octicon-link"></span></a>Running the Demos</h2>
 
 <p>You may run the demo from the extracted directory of pymadlib like so :</p>
@@ -141,9 +147,9 @@ sudo python setup.py install
 </ol><hr><h2>
 <a name="installation-issues" class="anchor" href="#installation-issues"><span class="octicon octicon-link"></span></a>Installation Issues</h2>
 
-<p>Installing PyMADlib using distutils should automatically install the dependent library psycopg2, which is required to connect to a Postgres database where MADlib is installed. If you are using Mac OSX 10.6.x you may run into issues with installing psycopg2.</p>
+<p>Installing pymadlib using distutils should automatically install the dependent library psycopg2, which is required to connect to a PostGres database (where MADlib is installed on). If you are using Mac OSX 10.6.X you may run into issues with installing psycopg2.</p>
 
-<p><a href="http://hardlifeofapo.com/psycopg2-and-postgresql-9-1-on-snow-leopard/">psycopg2-and-postgresql-9-1-on-snow-leopard</a> and <a href="http://www.initd.org/psycopg/articles/2010/11/11/links-about-building-psycopg-mac-os-x/">links-about-building-psycopg-mac-os-x</a> discuss some issues and offer some solutions.</p>
+<p><a href="http://hardlifeofapo.com/psycopg2-and-postgresql-9-1-on-snow-leopard/">psycopg2-and-postgresql-9-1-on-snow-leopard</a> and <a href="http://www.initd.org/psycopg/articles/2010/11/11/links-about-building-psycopg-mac-os-x/">links-about-building-psycopg-mac-os-x</a> discuss the issue and offer some solutions.</p>
 
 <hr><h5>
 <a name="srivatsan-ramanujam-vatsancsutexasedu-3-jan-2013" class="anchor" href="#srivatsan-ramanujam-vatsancsutexasedu-3-jan-2013"><span class="octicon octicon-link"></span></a>Srivatsan Ramanujam <a href="mailto:vatsan.cs@utexas.edu">vatsan.cs@utexas.edu</a>, 3 Jan 2013</h5>
