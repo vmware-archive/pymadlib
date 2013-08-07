@@ -61,7 +61,7 @@ class DBConnect(object):
             return conn_dict    
         
         def __init__(self,conn_str=None):
-            ''' Connect to the DB using Psycopg2, if conn_str is not provided, then it is read from ~/.mydb.config file '''
+            ''' Connect to the DB using Psycopg2, if conn_str is not provided, then it is read from .pymadlib.config file '''
             self.conn = psycopg2.connect(conn_str if conn_str else DBConnect.getConnectionString()['conn_string']) 
             
         def getCursor(self,withhold=True):
