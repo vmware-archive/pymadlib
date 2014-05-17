@@ -60,9 +60,10 @@ class DBConnect(object):
         
             return conn_dict    
         
-        def __init__(self,conn_str=None):
+        def __init__(self,conn_str=None,madlib_schema=None):
             ''' Connect to the DB using Psycopg2, if conn_str is not provided, then it is read from .pymadlib.config file '''
             self.conn = psycopg2.connect(conn_str if conn_str else DBConnect.getConnectionString()['conn_string']) 
+            self.madlib_schema = madlib_schema if madlib_schema else 'madlib'
             
         def getCursor(self,withhold=True):
             ''' Return a named cursor '''  
@@ -392,14 +393,14 @@ class LogisticRegression(SupervisedLearning):
             
             stmt = '''
                       select * 
-                      from madlib.logregr('{table_name}','{dep}','{indep}',{numIter}, '{optimizer}', {precision}) 
-                   '''
-            stmt = stmt.format(dep=dep,
+                      from {madlib_schema}.logregr('{table_name}','{dep}','{indep}',{numIter}, '{optimizer}', {precision}) 
+                   '''.format(dep=dep,
                                indep=self.model['indep'],
                                table_name=table_name,
                                numIter=numIter,
                                optimizer=optimizer,
-                               precision=precision
+                               precision=precision,
+                               madlib_schema=self.dbconn.madlib_schema
                               ) 
             
             print '\nstatement :',stmt
@@ -512,7 +513,7 @@ class SVM(SupervisedLearning):
             
             stmt = ''' '''
             if(isRegression==True):
-                stmt =  '''select madlib.svm_regression('{table_name}',
+                stmt =  '''select {madlib_schema}.svm_regression('{table_name}',
                                                         '{model_table}',
                                                         {parallel},
                                                         '{kernel_func}',
@@ -520,8 +521,8 @@ class SVM(SupervisedLearning):
                                                         {eta},
                                                         {nu},
                                                         {slambda}
-                                                        );'''
-                stmt = stmt.format(
+                                                        );
+                        '''.stmt.format(
                                    table_name=table_name,
                                    model_table=model_table,
                                    verbose=verbose,
@@ -529,45 +530,48 @@ class SVM(SupervisedLearning):
                                    eta=eta,                                 
                                    kernel_func=kernel_func,
                                    nu=nu,
-                                   slambda=slambda
+                                   slambda=slambda,
+                                   madlib_schema=self.dbconn.madlib_schema
                                   )
                 
             #Linear SVM Classification
             elif(kernel_func==None):
-                stmt =  '''select madlib.lsvm_classification('{table_name}',
+                stmt =  '''select {madlib_schema}.lsvm_classification('{table_name}',
                                                              '{model_table}',
                                                              {parallel},
                                                              {verbose},
                                                              {eta},
                                                              {reg}
-                                                            );'''
-                stmt = stmt.format(
+                                                            );
+                        '''.format(
                                    table_name=table_name,
                                    model_table=model_table,
                                    verbose=verbose,
                                    parallel=parallel,
                                    eta=eta,
-                                   reg=reg
+                                   reg=reg,
+                                   madlib_schema=self.dbconn.madlib_schema
                                   )
                 
             #SVM Classification
             else:
-                stmt =  '''select madlib.svm_classification ('{table_name}',
+                stmt =  '''select {madlib_schema}.svm_classification ('{table_name}',
                                                              '{model_table}',
                                                              {parallel},
                                                              '{kernel_func}',
                                                              {verbose},
                                                              {eta},
                                                              {nu}
-                                                            );'''     
-                stmt = stmt.format(
+                                                            );
+                        '''.format(
                                    table_name=table_name,
                                    model_table=model_table,
                                    verbose=verbose,
                                    parallel=parallel,
                                    eta=eta,                                 
                                    kernel_func=kernel_func,
-                                   nu=nu
+                                   nu=nu,
+                                   madlib_schema=self.dbconn.madlib_schema
                                   )                                             
                
             
@@ -602,19 +606,21 @@ class SVM(SupervisedLearning):
             if(self.model['isRegression']==True or self.model['kernel_func'] !=None ):
                 algo_name =  'svm_predict_combo' if self.model['parallel'] else 'svm_predict'
                 stmt = '''
-                          select madlib.{algo_name}('{model_table}','{new_instance}'); 
+                          select {madlib_schema}.{algo_name}('{model_table}','{new_instance}'); 
                        '''.format(algo_name=algo_name,
                                   model_table = self.model['model_table'],
-                                  new_instance=new_instance                     
+                                  new_instance=new_instance,
+                                  madlib_schema=self.dbconn.madlib_schema                    
                                  )
             #Linear SVM    
             elif(self.model['kernel_func']==None):
                 algo_name =  'lsvm_predict_combo' if self.model['parallel'] else 'lsvm_predict'
                 stmt = ''' 
-                          select madlib.{algo_name}('{model_table}','{new_instance}');
+                          select {madlib_schema}.{algo_name}('{model_table}','{new_instance}');
                        '''.format(algo_name=algo_name,
                                   model_table = self.model['model_table'],
-                                  new_instance=new_instance                     
+                                  new_instance=new_instance,
+                                  madlib_schema=self.dbconn.madlib_schema                     
                                  )
                               
             print '\nstatement:',stmt
@@ -647,14 +653,15 @@ class SVM(SupervisedLearning):
                 algo_name =  'lsvm_predict_batch'        
                         
             stmt = '''
-                      select madlib.{algo_name}('{input_table}','{data_col}','{id_col}','{model_table}','{output_table}',{parallel}); 
+                      select {madlib_schema}.{algo_name}('{input_table}','{data_col}','{id_col}','{model_table}','{output_table}',{parallel}); 
                    '''.format(algo_name=algo_name,
                               input_table=predict_table,
                               id_col=id_col,
                               data_col=data_col,
                               output_table=output_table,
                               model_table = self.model['model_table'],
-                              parallel=self.model['parallel']                    
+                              parallel=self.model['parallel'],
+                              madlib_schema=self.dbconn.madlib_schema                    
                              )   
                                                               
             print '\nstatement:',stmt
@@ -697,7 +704,7 @@ class KMeans(object):
             if(seeding_method=='kmeanspp'):          
                 #Initialization using K-Means Plus Plus           
                 stmt = '''
-                             select * from madlib.kmeanspp(
+                             select * from {madlib_schema}.kmeanspp(
                                                          '{table_name}',
                                                          '{instances}',
                                                          {numClusters},
@@ -706,20 +713,20 @@ class KMeans(object):
                                                          {max_num_iterations},
                                                          {min_frac_reassigned}
                                                          );                                                       
-                          '''          
-                stmt = stmt.format(
+                          '''.format(
                                       table_name=table_name,
                                       instances=instances,                                    
                                       numClusters=numClusters,
                                       fn_dist=fn_dist,
                                       agg_centroid=agg_centroid,
                                       max_num_iterations=max_num_iterations,
-                                      min_frac_reassigned=min_frac_reassigned
+                                      min_frac_reassigned=min_frac_reassigned,
+                                      madlib_schema=self.dbconn.madlib_schema
                                      )
             elif(seeding_method=='custom'):
                 #Initialization using a set of provided centroids           
                 stmt = '''
-                             select * from madlib.kmeans(
+                             select * from {madlib_schema}.kmeans(
                                                          '{table_name}',
                                                          '{instances}',
                                                          {numClusters},
@@ -729,8 +736,7 @@ class KMeans(object):
                                                          {max_num_iterations},
                                                          {min_frac_reassigned}
                                                          );                                                       
-                          '''          
-                stmt = stmt.format(
+                          '''.format(
                                       table_name=table_name,
                                       instances=instances,                                    
                                       numClusters=numClusters,
@@ -738,12 +744,13 @@ class KMeans(object):
                                       fn_dist=fn_dist,
                                       agg_centroid=agg_centroid,
                                       max_num_iterations=max_num_iterations,
-                                      min_frac_reassigned=min_frac_reassigned
+                                      min_frac_reassigned=min_frac_reassigned,
+                                      madlib_schema=self.dbconn.madlib_schema
                                      )          
             else:
                 #Random initialization              
                 stmt = '''
-                          select * from madlib.kmeans_random(
+                          select * from {madlib_schema}.kmeans_random(
                                                              '{table_name}',
                                                              '{instances}',
                                                              {numClusters},
@@ -752,17 +759,17 @@ class KMeans(object):
                                                              {max_num_iterations},
                                                              {min_frac_reassigned}
                                                              );                                                       
-                       '''              
-                stmt = stmt.format(
+                       '''.format(
                                   table_name=table_name,
                                   instances=instances,
                                   numClusters=numClusters,
                                   fn_dist=fn_dist,
                                   agg_centroid=agg_centroid,
                                   max_num_iterations=max_num_iterations,
-                                  min_frac_reassigned=min_frac_reassigned
+                                  min_frac_reassigned=min_frac_reassigned,
+                                  madlib_schema=self.dbconn.madlib_schema
                                  )
-            
+                                 
             cursor = self.dbconn.getCursor()
             self.model = {}
             
@@ -814,7 +821,7 @@ class PLDA(object):
             self.model['numTopics']=numTopics
                        
             stmt = '''
-                      select madlib.plda_run('{dataTable}', '{dictTable}', '{modelTable}', '{outputTable}', 
+                      select {madlib_schema}.plda_run('{dataTable}', '{dictTable}', '{modelTable}', '{outputTable}', 
                              {numIter}, {numTopics}, {alpha}, {eta});  
                    '''.format(
                               dataTable=dataTable,
@@ -824,7 +831,8 @@ class PLDA(object):
                               numIter=numIter,
                               numTopics=numTopics,
                               alpha=alpha,
-                              eta=eta
+                              eta=eta,
+                              madlib_schema=self.dbconn.madlib_schema
                              ) 
                
             self.dbconn.executeQuery(stmt)
@@ -864,7 +872,7 @@ class PLDA(object):
             eta = self.model['eta'] if not eta else eta          
             
             stmt = '''
-                      select madlib.plda_label_test_documents('{testTable}', '{outputTable}', '{modelTable}', '{dictTable}',
+                      select {madlib_schema}.plda_label_test_documents('{testTable}', '{outputTable}', '{modelTable}', '{dictTable}',
                                {numTopics}, {alpha}, {eta});
                    '''.format(
                               testTable=testTable,
@@ -873,7 +881,8 @@ class PLDA(object):
                               dictTable=dictTable,
                               numTopics=numTopics,
                               alpha=alpha,
-                              eta=eta
+                              eta=eta,
+                              madlib_schema=self.dbconn.madlib_schema
                              )
             
             self.dbconn.executeQuery(stmt)
