@@ -95,7 +95,7 @@ def find_package_data(
 
 setup(
     name='pymadlib',
-    version='0.1.6',
+    version='0.1.7',
     author='Srivatsan Ramanujam',
     author_email='vatsan.cs@utexas.edu',
     url='http://vatsan.github.com/pymadlib',

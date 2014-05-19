@@ -138,7 +138,18 @@ def svmDemo(conn):
     __svmDemoCleanup__(conn) 
     # a) SVM Regression
     svm_reg = SVM(conn)
-    svm_reg.train('public.wine_bool_svm_train_set', 'svm_model', True, False, False, 0.1, 0.001, 'madlib.svm_dot', 0.005, 0.05)  
+    kernal_func = '{madlib_schema}.svm_dot'.format(madlib_schema=conn.madlib_schema)
+    svm_reg.train('public.wine_bool_svm_train_set', 
+                  'svm_model', 
+                  True, 
+                  False, 
+                  False, 
+                  0.1, 
+                  0.001, 
+                  kernal_func, 
+                  0.005, 
+                  0.05
+                  )
     svm_reg.predict('{1,3,1.63,9.9,0.64,1.39}')
     __svmDemoCleanup__(conn)     
     
@@ -148,13 +159,33 @@ def svmDemo(conn):
     __svmDemoCleanup__(conn)    
         
     # c) Non-linear SVM Classification
-    svm_reg.train('public.wine_bool_svm_train_set', 'svm_model', False, False, False, 0.1, 0.001,'madlib.svm_dot', 0.005, 0.05)    
+    svm_reg.train('public.wine_bool_svm_train_set', 
+                  'svm_model', 
+                  False, 
+                  False, 
+                  False, 
+                  0.1, 
+                  0.001,
+                  kernal_func, 
+                  0.005, 
+                  0.05
+                  )    
     svm_reg.predict('{1,3,1.63,9.9,0.64,1.39}')    
     __svmDemoCleanup__(conn)  
     
     # d) SVM batch prediction (with non linear model)
     conn.executeQuery('drop table if exists gp_pymdlib_svm_prediction cascade;')    
-    svm_reg.train('public.wine_bool_svm_train_set', 'svm_model', False, False, False, 0.1, 0.001,'madlib.svm_dot', 0.005, 0.05)    
+    svm_reg.train('public.wine_bool_svm_train_set', 
+                  'svm_model', 
+                  False, 
+                  False, 
+                  False, 
+                  0.1, 
+                  0.001,
+                  kernal_func, 
+                  0.005, 
+                  0.05
+                  )    
     cursor = svm_reg.predict_batch('wine_bool_svm_train_set',
                           'gp_pymdlib_svm_prediction',
                           'id',
@@ -196,9 +227,9 @@ def kmeansDemo(conn):
                    '''
                       select t1.id as node1, 
                              t2.id as node2, 
-                             madlib.squared_dist_norm2(t1.indep, t2.indep) as dist 
+                             {madlib_schema}.squared_dist_norm2(t1.indep, t2.indep) as dist 
                       from {table_name} t1, {table_name} t2;  
-                   '''.format(table_name='wine_bool_training_set')
+                   '''.format(table_name='wine_bool_training_set',madlib_schema=conn.madlib_schema)
                   )
     
     result_set = [row for row in cursor]
@@ -229,16 +260,17 @@ def kmeansDemo(conn):
     #Get cluster allocation for deciding colors
     cluster_membership_query = '''
                                     select id as instance_id,
-                                           (madlib.closest_column(
+                                           ({madlib_schema}.closest_column(
                                                                   '{centroids}'::double precision[],
                                                                   indep, 
-                                                                  'madlib.squared_dist_norm2'
+                                                                  '{madlib_schema}.squared_dist_norm2'
                                                                  )
                                            ).column_id as cluster_num
                                     from {table_name};
                                '''.format(
                                            centroids=centroids_random_kmeans,
-                                           table_name='wine_bool_training_set'
+                                           table_name='wine_bool_training_set',
+                                           madlib_schema=conn.madlib_schema
                                          )
 
     cluster_memberships = {}                           
@@ -469,7 +501,7 @@ def pyMADlibDemo():
     ''' 
         Demonstrate building Linear Regression and Logistic Regression Models using MADlib 
     '''
-    conn = DBConnect()
+    conn = DBConnect(madlib_schema='madlib_v05')
 
     #1) Linear Regression
     linearRegressionDemo(conn)    

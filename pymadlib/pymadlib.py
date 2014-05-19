@@ -302,10 +302,9 @@ class LinearRegression(SupervisedLearning):
             cursor = self.dbconn.getCursor()
             
             stmt = '''
-                      select (madlib.linregr({dep},{indep})).* 
+                      select ({madlib_schema}.linregr({dep},{indep})).* 
                       from {table_name}
-                   '''
-            stmt = stmt.format(dep=dep,indep=self.model['indep'], table_name=table_name) 
+                   '''.format(dep=dep,indep=self.model['indep'], table_name=table_name,madlib_schema=self.dbconn.madlib_schema) 
         
             print '\nstatement :',stmt
             print '\n'
@@ -340,13 +339,14 @@ class LinearRegression(SupervisedLearning):
                                                                        self.model['col_distinct_vals_dict'])
             stmt = '''
                       select *, 
-                             madlib.array_dot(array{coef}::real[],{indep}) as prediction 
+                             {madlib_schema}.array_dot(array{coef}::real[],{indep}) as prediction 
                       from {table_name}
-                   '''
-            stmt = stmt .format(coef=self.model['coef'],
-                                indep=self.model['indep'],
-                                table_name=predict_table_name
-                               )
+                   '''.format(
+                              coef=self.model['coef'],
+                              indep=self.model['indep'],
+                              table_name=predict_table_name,
+                              madlib_schema=self.dbconn.madlib_schema
+                             )
             cursor = self.dbconn.getCursor()
             cursor.execute(stmt)
             return cursor
@@ -441,24 +441,26 @@ class LogisticRegression(SupervisedLearning):
             if(threshold):
                 stmt = '''
                           select *,
-                                case when (1.0/(1.0 + exp(-1.0*madlib.array_dot({indep}, array{coef}::real[])))) > {threshold} 
+                                case when (1.0/(1.0 + exp(-1.0*{madlib_schema}.array_dot({indep}, array{coef}::real[])))) > {threshold} 
                                           THEN 1 ELSE 0 
                                 end as prediction 
                           from {table_name}
                        '''.format(coef=self.model['coef'],
                                   indep=self.model['indep'],
                                   table_name=predict_table_name,
-                                  threshold=threshold
+                                  threshold=threshold,
+                                  madlib_schema=self.dbconn.madlib_schema
                                  )
             else:
                 #If threshold is not specified, we will return actual predictions
                 stmt = '''
                           select *,
-                                (1.0/(1.0 + exp(-1.0*madlib.array_dot({indep}, array{coef}::real[]))))  as prediction 
+                                (1.0/(1.0 + exp(-1.0*{madlib_schema}.array_dot({indep}, array{coef}::real[]))))  as prediction 
                          from {table_name}
                        '''.format(coef=self.model['coef'],
                                   indep=self.model['indep'],
-                                  table_name=predict_table_name
+                                  table_name=predict_table_name,
+                                  madlib_schema=self.dbconn.madlib_schema
                                  )
 
             print '\nstatement:',stmt
@@ -522,7 +524,7 @@ class SVM(SupervisedLearning):
                                                         {nu},
                                                         {slambda}
                                                         );
-                        '''.stmt.format(
+                        '''.format(
                                    table_name=table_name,
                                    model_table=model_table,
                                    verbose=verbose,
@@ -681,7 +683,18 @@ class KMeans(object):
         def __init__(self,conn):
             self.dbconn = conn 
         
-        def generateClusters(self, table_name, instances, numClusters, initial_centroids=None, seeding_method='random', fn_dist='madlib.squared_dist_norm2', agg_centroid='madlib.avg', max_num_iterations=20, min_frac_reassigned=0.001):
+        def generateClusters(
+                               self, 
+                               table_name, 
+                               instances, 
+                               numClusters, 
+                               initial_centroids=None, 
+                               seeding_method='random',
+                               fn_dist='{madlib_schema}.squared_dist_norm2',
+                               agg_centroid='{madlib_schema}.avg', 
+                               max_num_iterations=20, 
+                               min_frac_reassigned=0.001
+                            ):
             '''
                Invoke MADlib's K-Means algorithm
                Inputs:
@@ -717,8 +730,8 @@ class KMeans(object):
                                       table_name=table_name,
                                       instances=instances,                                    
                                       numClusters=numClusters,
-                                      fn_dist=fn_dist,
-                                      agg_centroid=agg_centroid,
+                                      fn_dist=fn_dist.format(madlib_schema=self.dbconn.madlib_schema),
+                                      agg_centroid=agg_centroid.format(madlib_schema=self.dbconn.madlib_schema),
                                       max_num_iterations=max_num_iterations,
                                       min_frac_reassigned=min_frac_reassigned,
                                       madlib_schema=self.dbconn.madlib_schema
@@ -741,8 +754,8 @@ class KMeans(object):
                                       instances=instances,                                    
                                       numClusters=numClusters,
                                       initial_centroids=initial_centroids,
-                                      fn_dist=fn_dist,
-                                      agg_centroid=agg_centroid,
+                                      fn_dist=fn_dist.format(madlib_schema=self.dbconn.madlib_schema),
+                                      agg_centroid=agg_centroid.format(madlib_schema=self.dbconn.madlib_schema),
                                       max_num_iterations=max_num_iterations,
                                       min_frac_reassigned=min_frac_reassigned,
                                       madlib_schema=self.dbconn.madlib_schema
@@ -763,8 +776,8 @@ class KMeans(object):
                                   table_name=table_name,
                                   instances=instances,
                                   numClusters=numClusters,
-                                  fn_dist=fn_dist,
-                                  agg_centroid=agg_centroid,
+                                  fn_dist=fn_dist.format(madlib_schema=self.dbconn.madlib_schema),
+                                  agg_centroid=agg_centroid.format(madlib_schema=self.dbconn.madlib_schema),
                                   max_num_iterations=max_num_iterations,
                                   min_frac_reassigned=min_frac_reassigned,
                                   madlib_schema=self.dbconn.madlib_schema
