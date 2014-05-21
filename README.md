@@ -54,64 +54,47 @@ PyMADlib depends on `psycopg2` and `Pandas`. It is easiest to work with PyMADlib
 
 Build Environment Setup on Mac OS X 10.8
 
-1) Download & install [Anaconda-1.9.0-MacOSX-x86_64.pkg] (http://repo.continuum.io/archive/Anaconda-1.9.0-MacOSX-x86_64.pkg)
+1. Download & install [Anaconda-1.9.0-MacOSX-x86_64.pkg] (http://repo.continuum.io/archive/Anaconda-1.9.0-MacOSX-x86_64.pkg)
 
-2) Open a terminal and check if you have Anaconda Python & the package manager conda
+2. Open a terminal and check if you have Anaconda Python & the package manager conda
 
+>     vatsan-mac$ which python
+>     /Users/vatsan/anaconda/bin/python
+>     vatsan-mac$ which conda
+>     /Users/vatsan/anaconda/bin/conda 
 
->   vatsan-mac$ which python
->   /Users/vatsan/anaconda/bin/python
->   vatsan-mac$ which conda
->   /Users/vatsan/anaconda/bin/conda 
+3. If you haven't installed PostgreSQL on your Mac already, you'll have to download & install `PostGreSQL` for Mac. This is so that we get some required libraries to compile the SQL Engine: psycopg2. The easiest way to install `PostGreSQL` on Mac is via `http://postgresapp.com/`. Once you've downloaded and installed PostGreSQL on Mac, it should typically be found under `/Library/PostgreSQL`
 
-
-3) If you haven't installed PostgreSQL on your Mac already, you'll have to download & install `PostGreSQL` for Mac. This is so that we get some required libraries to compile the SQL Engine: psycopg2. The easiest way to install `PostGreSQL` on Mac is via `http://postgresapp.com/`. Once you've downloaded and installed PostGreSQL on Mac, it should typically be found under `/Library/PostgreSQL`
-
-
->   vatsan-mac$ ls /Library/PostgreSQL/9.2/
->   Library include pg_env.sh uninstall-postgresql.app
->   bin installer scripts
->   data lib share
->   doc pgAdmin3.app stackbuilder.app
-
-
+>     vatsan-mac$ ls /Library/PostgreSQL/9.2/
+>     Library include pg_env.sh uninstall-postgresql.app
+>     bin installer scripts
+>     data lib share
+>     doc pgAdmin3.app stackbuilder.app
 I don't think the version of the `PostGreSQL` matters (9.1 or above is fine). 
 
-4) You may need to create some symlinks to `libpq` & `libssl` so that `psycopg2` is able to find it:
+4. You may need to create some symlinks to `libpq` & `libssl` so that `psycopg2` is able to find it:
 
+>     vatsan-mac$ sudo ln -s /Users/vatsan/anaconda/lib/libssl.1.0.0.dylib /usr/lib
+>     vatsan-mac$ sudo ln -s /Users/vatsan/anaconda/lib/libcrypto.1.0.0.dylib /usr/lib
 
->   vatsan-mac$ sudo ln -s /Users/vatsan/anaconda/lib/libssl.1.0.0.dylib /usr/lib
->   vatsan-mac$ sudo ln -s /Users/vatsan/anaconda/lib/libcrypto.1.0.0.dylib /usr/lib
+5. Install `Psycopg2` 
 
+>     vatsan-mac$ conda install distribute
+>     vatsan-mac$ pip install psycopg2
 
-5) Install `Psycopg2` 
+6. Now we're ready to test if the installations of the required libraries were successful.
 
-
->   vatsan-mac$ conda install distribute
->   vatsan-mac$ pip install psycopg2
-
-
-Now we're ready to test if the installations of the required libraries were successful.
-
-
->   vatsan-mac$ python -c 'import psycopg2'
-
+>     vatsan-mac$ python -c 'import psycopg2'
 If the above command did not error out, then installation was successful.
 
+7. You may install `PyMADlib` by downloading the source (from PyPI) and then run the following
 
-1. You may install pymadlib by downloading the source (from PyPI) and then run the following
+>     sudo python setup.py build
+>     sudo python setup.py install
 
+8. If you use easy_install or pip, simply run :
 
->   sudo python setup.py build
->   sudo python setup.py install
-
-
-2. If you use easy_install or pip, simply run :
-
-
->   sudo easy_install pymadlib
-
-    
+>     sudo easy_install pymadlib
 
 ***
 
