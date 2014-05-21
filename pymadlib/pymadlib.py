@@ -598,22 +598,15 @@ class KMeans(object):
                                   min_frac_reassigned=min_frac_reassigned,
                                   madlib_schema=self.dbconn.madlib_schema
                                  )
-                                 
-            cursor = self.dbconn.getCursor()
             self.model = {}
-            
             logging.info('statement :{0}'.format(stmt))
             
-            cursor.execute(stmt)
+            psql.read_frame(stmt, self.dbconn.getConnection())
+            mdl_params = psql.read_frame(stmt, self.dbconn.getConnection())
+            for param in mdl_params.columns:
+                self.model[param] = mdl_params.get(param)[0]
             
-            row_set = self.dbconn.fetchRowsFromCursor(cursor)
-            mdl_params = self.dbconn.fetchModelParams(row_set)
-            self.dbconn.printModel(row_set)
-            
-            for param in mdl_params:
-                self.model[param] = mdl_params[param]
-                              
-            return self.model  
+            return self.model, mdl_params 
       
 class PLDA(object):
         ''' 

@@ -215,7 +215,9 @@ def kmeansDemo(conn):
     #a) K-Means with random initialization of centroids
     kmeans = KMeans(conn)
     logging.info('KMeans with random cluster initialization')
-    mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3)   
+    mdl, mdl_params = kmeans.generateClusters('public.wine_bool_training_set','indep',3)  
+    #Show model params
+    mdl_params 
     centroids_random_kmeans = str(mdl.get('centroids'))
     centroids_random_kmeans = centroids_random_kmeans.replace('[','{').replace(']','}')
     
@@ -225,63 +227,57 @@ def kmeansDemo(conn):
     
     #Show a visualization of the clusters.
     #1) Compute the strength of the relationship between all pairs of points and capture this in a graph
-    cursor = conn.getCursor()   
-    cursor.execute(
-                   '''
-                      select t1.id as node1, 
-                             t2.id as node2, 
-                             {madlib_schema}.squared_dist_norm2(t1.indep, t2.indep) as dist 
-                      from {table_name} t1, {table_name} t2;  
-                   '''.format(table_name='wine_bool_training_set',madlib_schema=conn.madlib_schema)
-                  )
-    
-    result_set = [row for row in cursor]
-    cursor.close()
+
+    stmt = '''
+              select t1.id as node1, 
+                     t2.id as node2, 
+                     {madlib_schema}.squared_dist_norm2(t1.indep, t2.indep) as dist 
+              from {table_name} t1, {table_name} t2;  
+    '''.format(
+        table_name='wine_bool_training_set',
+        madlib_schema=conn.getMADlibSchema()
+    )
+    results = psql.read_frame(stmt, conn.getConnection())
     dist_dict = {}    
     edge_set = set()
-    for r in result_set:
-        node1 = r.get('node1')
-        node2 = r.get('node2')
+    for r in range(len(results)):
+        node1 = results.get('node1')[r]
+        node2 = results.get('node2')[r]
         ed = [node1,node2]
         ed.sort()
         ed = str(ed)
-        dist = r.get('dist')        
+        dist = results.get('dist')[r]        
         #We are building undirected graph, so don't add back edges.
         if(ed not in edge_set):
             edge_set.add(ed)
             if(dist_dict.has_key(node1)):
                 dist_dict[node1][node2]=dist
             else:
-                dist_dict[node1] = {node2:dist}
-            
-        
+                dist_dict[node1] = {node2:dist}   
     #2) Only retain those edges in the 90 percentile, prune the remaining (sparse graph).
-    dist_arr = list(set([r.get('dist') for r in result_set]))
+    dist_arr = list(set(results.get('dist')))
     dist_arr.sort()    
     #3) Display the resulting graph where nodes are colored by their cluster number. 
     # Also, nodes in the same cluster should be physically close to each other.
     #Get cluster allocation for deciding colors
     cluster_membership_query = '''
-                                    select id as instance_id,
-                                           ({madlib_schema}.closest_column(
-                                                                  '{centroids}'::double precision[],
-                                                                  indep, 
-                                                                  '{madlib_schema}.squared_dist_norm2'
-                                                                 )
-                                           ).column_id as cluster_num
-                                    from {table_name};
-                               '''.format(
-                                           centroids=centroids_random_kmeans,
-                                           table_name='wine_bool_training_set',
-                                           madlib_schema=conn.madlib_schema
-                                         )
+        select id as instance_id,
+               ({madlib_schema}.closest_column(
+                    '{centroids}'::double precision[],
+                    indep, 
+                    '{madlib_schema}.squared_dist_norm2'
+                )
+               ).column_id as cluster_num
+        from {table_name};
+    '''.format(
+        centroids=centroids_random_kmeans,
+        table_name='wine_bool_training_set',
+        madlib_schema=conn.getMADlibSchema()
+    )
 
-    cluster_memberships = {}                           
-    cursor = conn.getCursor()
-    cursor.execute(cluster_membership_query)
-    for r in cursor:
-        cluster_memberships[r.get('instance_id')] = r.get('cluster_num')
-    cursor.close()    
+    results = psql.read_frame(cluster_membership_query, conn.getConnection())
+    cluster_memberships = dict(zip(results.get('instance_id'),results.get('cluster_num')))
+      
     #Visualize
     kmeansViz(dist_dict,dist_arr,cluster_memberships)
     
