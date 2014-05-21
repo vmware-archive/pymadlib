@@ -6,6 +6,11 @@
 
 from pymadlib import DBConnect, LinearRegression, LogisticRegression, SVM, KMeans, PLDA
 import os
+import logging
+import pandas.io.sql as psql
+from pandas.tools.plotting import scatter_matrix
+import matplotlib.pyplot as plt
+
 COLOR_PURPLE = '#CC33FF'
 COLOR_VIOLET = '#6600FF'
 COLOR_LIGHT_BLUE = '#0099CC'
@@ -31,13 +36,9 @@ def __isTableExists__(tbl_name,conn):
                             ) as is_exists ;
            '''.format(tbl_name=tbl_name)
 
-    cursor = conn.getCursor()
-    cursor.execute(stmt)
+    result = psql.read_frame(stmt,conn.getConnection())
     tableExists=False
-    for row in cursor:
-        tableExists = row['is_exists'] 
-    cursor.close()
-
+    tableExists = result.get('is_exists')[0]
     return tableExists
 
 def loadDemoTables():
@@ -61,75 +62,77 @@ def loadDemoTables():
         if(fl.endswith('.sql')):
             #If the demo table does not exists in the database already, create it using the provided sql files
             if(not __isTableExists__(fl[:-len('.sql')],dbconn)):   
-                print '\n\n cmd:',load_tbl_stmt+' '+full_path
+                logging.info('cmd:{0}'.format(load_tbl_stmt+' '+full_path))
                 cmd = load_tbl_stmt+ ' '+full_path
                 os.system(cmd)         
                 
-    print 'Loading demo tables complete'
+    logging.info('Loading demo tables complete')
 
 def linearRegressionDemo(conn):
     '''
        Demonstrate Linear Regression
     '''
+    mdl = LinearRegression(conn)
+    #Train Model and Score
     lreg = LinearRegression(conn)
-    lreg.train('public.wine_training_set',['1','alcohol','proline','hue','color_intensity','flavanoids'],'quality')
-    cursor = lreg.predict('public.wine_test_set','quality')
-    rowset = conn.printTable(cursor,['id','quality','prediction'])
-    cols = conn.fetchColumns(rowset,['quality','prediction'])
-
-    actual = cols['quality']
-    predicted = cols['prediction'] 
-    scatterPlot(actual,predicted, 'wine_test_set')        
-
+    mdl_dict, mdl_params = lreg.train('public.wine_training_set',['1','alcohol','proline','hue','color_intensity','flavanoids'],'quality')
+    #Show model params
+    mdl_params
+    #Now do prediction
+    predictions = lreg.predict('public.wine_test_set','quality')
+    #Show prediction results
+    predictions.head()
+    #Show Scatter Matrix of Actual Vs Predicted
+    smat = scatter_matrix(predictions.get(['quality','prediction']), diagonal='kde')   
         
     # 1 b) Linear Regression with categorical variables 
     # We'll use the auto_mpg dataset from UCI : http://archive.ics.uci.edu/ml/machine-learning-databases/autos/imports-85.names
     # make, fuel_type, fuel_system are all categorical variables, rest are real.
-    lreg.train('public.auto_mpg_train',['1','height','width','length','highway_mpg','engine_size','make','fuel_type','fuel_system'],'price')
-    
-    cursor = lreg.predict('public.auto_mpg_test','price')
-    rowset = conn.printTable(cursor,['id','price','prediction'])
-    cols = conn.fetchColumns(rowset,['price','prediction'])
-    
-    print '\n\n Linear Regression Predictions (with categorical variables) :'    
-    actual = cols['price']
-    predicted = cols['prediction'] 
-    scatterPlot(actual,predicted, 'auto_mpg_test')    
+    #Train Linear Regression Model on a mixture of Numeric and Categorical Variables
+    mdl_dict, mdl_params = lreg.train('public.auto_mpg_train',['1','height','width','length','highway_mpg','engine_size','make','fuel_type','fuel_system'],'price')
+    predictions = lreg.predict('public.auto_mpg_test','price')
+    #Show sample predictions
+    predictions.head()    
+    #Display Scatter Plot of Actual Vs Predicted Values
+    smat = scatter_matrix(predictions.get(['price','prediction']), diagonal='kde')    
     
 def logisticRegDemo(conn):
     '''
        Demonstrate Logistic Regression
     '''    
     
-    # a) Logistic Regression with numeric attributes
+    #1) Logistic Regression with Numeric Variables Alone
     log_reg = LogisticRegression(conn)
-    log_reg.train('public.wine_bool_training_set','indep','quality_label')
-    cursor = log_reg.predict('public.wine_bool_test_set','',0.5)
-    conn.printTable(cursor,['id','quality_label','prediction'])
-            
-    # b) ROC curve for Logistic Regression using numeric features alone, 
-    # Note: Here threshold is set to None, to be able to plot ROC curve    
-    cursor = log_reg.predict('wine_bool_test_set','',None)
-    cols = conn.fetchColumns(cursor,['quality_label','prediction'])
-    actual = cols['quality_label']
-    predicted = cols['prediction']
-    #show ROC curve
-    ROCPlot('ROC curve Logistic Reg. on Continuous Features ',['Logistic Regression'],actual,predicted)
+    #Train Model
+    mdl_dict, mdl_params = log_reg.train('public.wine_bool_training_set','indep','quality_label')
+    #Show Model Parameters
+    mdl_params.head()
+    #2) Logistic Regression Prediction 
+    predictions = log_reg.predict('wine_bool_test_set','',None)
+    predictions.head()
+
+    #Display ROC Curve
+    actual = predictions.get('quality_label')
+    predicted = predictions.get('prediction')
+    ROCPlot('ROC curve Logistic Reg. on Continuous Features ',['Logistic Regression'],actual,predicted) 
     
-    # c) Logistic Regression with mixture of numeric and categorical columns     
-    log_reg.train('public.auto_mpg_bool_train',['1','height','width','length','highway_mpg','engine_size','make','fuel_type','fuel_system'],'is_expensive')
-    cursor = log_reg.predict('auto_mpg_bool_test','is_expensive',None)
+    # 2) Logistic Regression with mixture of numeric and categorical columns     
+    mdl_dict, mdl_params = log_reg.train('public.auto_mpg_bool_train',['1','height','width','length','highway_mpg',
+                                         'engine_size','make','fuel_type','fuel_system'],
+                                         'is_expensive'
+                           )
+    predictions = log_reg.predict('auto_mpg_bool_test','is_expensive',None)
     cols = conn.fetchColumns(cursor,['is_expensive','prediction'])
-    actual = cols['is_expensive']
-    predicted = cols['prediction']  
+    actual = predictions.get('is_expensive')
+    predicted = predictions.get('prediction') 
     ROCPlot('ROC curve Logistic Reg. including categorical data',['Logistic Regression'],actual,predicted)  
     
 def __svmDemoCleanup__(conn):
     '''
        Clean-up any tables that were created
     '''        
-    conn.executeQuery('drop table if exists svm_model cascade ;')
-    conn.executeQuery('drop table if exists svm_model_param cascade ;')   
+    psql.execute('drop table if exists svm_model cascade ;', conn.getConnection())
+    psql.execute('drop table if exists svm_model_param cascade ;', conn.getConnection())   
     
 def svmDemo(conn):
     '''
@@ -140,15 +143,15 @@ def svmDemo(conn):
     svm_reg = SVM(conn)
     kernal_func = '{madlib_schema}.svm_dot'.format(madlib_schema=conn.madlib_schema)
     svm_reg.train('public.wine_bool_svm_train_set', 
-                  'svm_model', 
-                  True, 
-                  False, 
-                  False, 
-                  0.1, 
-                  0.001, 
-                  kernal_func, 
-                  0.005, 
-                  0.05
+                      'svm_model', 
+                      True, 
+                      False, 
+                      False, 
+                      0.1, 
+                      0.001, 
+                      kernal_func, 
+                      0.005, 
+                      0.05
                   )
     svm_reg.predict('{1,3,1.63,9.9,0.64,1.39}')
     __svmDemoCleanup__(conn)     
@@ -201,7 +204,7 @@ def svmDemo(conn):
                    '''
                   )
 
-    print 'SVM Batch prediction results'
+    logging.info('SVM Batch prediction results')
     conn.printTable(cursor)
     __svmDemoCleanup__(conn) 
     
@@ -211,13 +214,13 @@ def kmeansDemo(conn):
     '''          
     #a) K-Means with random initialization of centroids
     kmeans = KMeans(conn)
-    print '\n\nKMeans with random cluster initialization'
+    logging.info('KMeans with random cluster initialization')
     mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3)   
     centroids_random_kmeans = str(mdl.get('centroids'))
     centroids_random_kmeans = centroids_random_kmeans.replace('[','{').replace(']','}')
     
     #b) KMeans Plus Plus 
-    print '\n\nKMeans Plus Plus '
+    logging.info('KMeans Plus Plus ')
     mdl = kmeans.generateClusters('public.wine_bool_training_set','indep',3,'kmeanspp') 
     
     #Show a visualization of the clusters.
@@ -372,40 +375,6 @@ def pldaDemo(conn):
         rowCount+=1
         print '\t| '.join([str(row[key]) for key in row.keys()])
 
-                      
-def scatterPlot(actual,predicted,dataset_name=''):
-    '''
-        Demonstrate Scatter Plot generation of the actual labels vs predicted labels
-        This requires Matplotlib installed on the local system.
-        Inputs:
-        =======
-        actual: (list) a list of actual values for a label column
-        predicted: (list) a list of predicted values for a label column
-        
-        Outputs:
-        ========
-        Displays the scatter plot in a window
-    '''
-
-    try:
-        import matplotlib, pylab
-        from pylab import poly1d, polyfit, plot
-    except ImportError:
-        print 'Matplotlib/Pylab does not exist, skipping Scatter Plot Demo'
-        return
-            
-    if(not actual or not predicted) :
-        return
-    #Line of best fit
-    fit = polyfit(actual,predicted,1)
-    fit_func = poly1d(fit)
-    #
-    matplotlib.pyplot.scatter(actual,predicted, facecolors='none', edgecolors=COLOR_LIGHT_RED, s=50, linewidth=2)
-    plot(actual,fit_func(actual),'k')
-    pylab.title('Scatter plot of Actual Vs Predicted values for dataset : {dataset_name}'.format(dataset_name=dataset_name), weight='bold')
-    pylab.xlabel('Actual', weight='bold')
-    pylab.ylabel('Predicted', weight='bold')
-    pylab.show()
 
 def ROCPlot(title, labels=None,*args):
     '''
@@ -444,58 +413,7 @@ def ROCPlot(title, labels=None,*args):
                 labels[i/2] = labels[i/2]+ ', AUC: {0} '.format(auc)
             lista.append(r1)            
     plot_multiple_roc(lista,title,include_baseline=True,labels=labels)    
-    pylab.close()
-    
-def networkVizDemo():
-    '''
-       Visualize the results of KMeans clustering using NetworkX http://networkx.github.com/
-       This example is taken from : http://networkx.github.com/documentation/latest/examples/drawing/random_geometric_graph.html
-       and is purely meant to show networkx's visualization.
-    '''
-    try:
-        import networkx as nx, matplotlib.pyplot as plt
-    except ImportError:
-        print 'NetworkX and/or Matplotlib/Pylab does not exist, skipping networkViz Demo'    
-        return
-
-    G=nx.random_geometric_graph(200,0.125)
-    # position is stored as node attribute data for random_geometric_graph
-    pos=nx.get_node_attributes(G,'pos')
-
-    # find node near center (0.5,0.5)
-    dmin=1
-    ncenter=0
-    for n in pos:
-        x,y=pos[n]
-        d=(x-0.5)**2+(y-0.5)**2
-        if d<dmin:
-            ncenter=n
-            dmin=d
-
-    # color by path length from node near center
-    p=nx.single_source_shortest_path_length(G,ncenter)
-
-    plt.figure(figsize=(8,8))
-    nx.draw_networkx_edges(G,pos,nodelist=[ncenter],alpha=0.4)
-    nx.draw_networkx_nodes(G,pos,nodelist=p.keys(),
-                           node_size=80,
-                           node_color=p.values(),
-                           cmap=plt.get_cmap('Reds_r'))
-    
-    plt.xlim(-0.05,1.05)
-    plt.ylim(-0.05,1.05)
-    plt.title('Network-X Random Graph Visualization', weight='bold')
-    plt.axis('off')
-    plt.show()
-   
-def conn_test():
-    ''' 
-        Test the connection by displaying rows from a table 
-    '''
-    conn = DBConnect()
-    cursor = conn.getCursor(True)
-    cursor.executeQuery('select * from wine_training_set')
-    conn.printTable(cursor)        
+    pylab.close()      
 
 def pyMADlibDemo():
     ''' 
@@ -524,7 +442,6 @@ def runDemos():
     '''
     loadDemoTables()
     pyMADlibDemo() 
-    networkVizDemo()
     
 if(__name__=='__main__'):
     runDemos()

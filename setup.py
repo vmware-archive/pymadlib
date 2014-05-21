@@ -95,7 +95,7 @@ def find_package_data(
 
 setup(
     name='pymadlib',
-    version='0.1.7',
+    version='1.0',
     author='Srivatsan Ramanujam',
     author_email='vatsan.cs@utexas.edu',
     url='http://vatsan.github.com/pymadlib',
@@ -106,6 +106,7 @@ setup(
     description='A Python wrapper for MADlib (http://madlib.net) - an open source library for scalable in-database machine learning algorithms',
     long_description=open('README.txt').read(),
     install_requires=[
-        "psycopg2 >= 2.4.5"
+        "psycopg2 >= 2.4.5",
+        "pandas >= 0.13.0"
     ],
 )

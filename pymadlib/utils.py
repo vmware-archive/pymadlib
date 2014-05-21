@@ -3,6 +3,7 @@
     Utility functions for PyMADlib. Currently this supports dummy coding of categorical columns (Pivoting).
 '''
 import pickle 
+import pandas.io.sql as psql
 
 default_schema = 'public'
 default_prefix = 'gp_pymdlib_'
@@ -108,7 +109,7 @@ def __binarizeInParallel__(conn, table_name, output_table, cols, col_types_dict,
        A new table is created with the rows of the original table transformed
     '''
     pinsert_func =  PARALLEL_INSERT_FUNC.format(table_name=table_name, output_table=output_table)
-    conn.executeQuery(pinsert_func)
+    psql.execute(pinsert_func, conn.getConnection())
     pinsert_stmt = PARALLEL_INSERT_QUERY.format(output_table_name=output_table,
                                                 table_name=table_name,
                                                 cols = GP_STRING_IDENTIFIER.format(string_to_encode=pickle.dumps(cols)),
@@ -116,7 +117,7 @@ def __binarizeInParallel__(conn, table_name, output_table, cols, col_types_dict,
                                                 col_distinct_vals_dict = GP_STRING_IDENTIFIER.format(string_to_encode=pickle.dumps(col_distinct_vals_dict)),
                                                 label_col=label
                                        )
-    conn.executeQuery(pinsert_stmt)
+    psql.execute(pinsert_stmt, conn.getConnection())
 
 def __getColTypesDict__(conn,tbl_schema,tbl_nm):
     '''
@@ -137,12 +138,8 @@ def __getColTypesDict__(conn,tbl_schema,tbl_nm):
                         where table_schema = '{table_schema}' and table_name = '{table_name}';
                      '''.format(table_schema=tbl_schema, table_name = tbl_nm)
                        
-    cursor = conn.getCursor()
-    cursor.execute(col_types_stmt)
-    col_types_dict = {}
-    for row in cursor:
-        col_types_dict[row.get('column_name')] = row.get('data_type')
-    cursor.close()
+    result = psql.read_frame(col_types_stmt, conn.getConnection())
+    col_types_dict = dict(zip(result.get('column_name'),result.get('data_type')))
     return col_types_dict
 
 def __getColDistinctValsDict__(conn, cols, col_types_dict, table_name):
@@ -170,11 +167,9 @@ def __getColDistinctValsDict__(conn, cols, col_types_dict, table_name):
     for col in cols:        
         if(col_types_dict[col] in ['char','character varying', 'text']):
             #Find distinct values of the column
-            cursor = conn.getCursor()    
             stmt = distinct_vals_stmt.format(col_name=col,table_name=table_name)   
-            cursor.execute(stmt)
-            distinct_vals = [row.get(col) for row in cursor]
-            cursor.close()
+            result = psql.read_frame(stmt, conn.getConnection())
+            distinct_vals = result.get(col)
             distinct_vals_dict = {}
             for i in range(len(distinct_vals)):
                 distinct_vals_dict[distinct_vals[i]]=i
@@ -275,7 +270,7 @@ def __createPivotTable__(conn, output_table, col_types_dict, col_names_and_types
                  );
                '''
     stmt = stmt.format(**data_dict)
-    conn.executeQuery(stmt)
+    psql.execute(stmt, conn.getConnection())
     
     
 def pivotCategoricalColumns(conn,table_name,cols,label='',col_distinct_vals_dict=None):
