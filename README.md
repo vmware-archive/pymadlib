@@ -2,7 +2,7 @@ A Python wrapper for MADlib - an open source library for scalable in-database ma
 
 ## Algorithms
 
-PyMADlib currently has wrappers for the following algorithms in MADlib
+PyMADlib currently has wrappers for the following algorithms in MADlib (version 0.5).
 
 1. Linear regression
 1. Logistic Regression
@@ -10,9 +10,7 @@ PyMADlib currently has wrappers for the following algorithms in MADlib
 1. K-Means 
 1. LDA 
 
-Refer [MADlib User Docs](http://doc.madlib.net/v0.5/ ) for MADlib's user documentation.
-
-
+Refer [MADlib User Docs](http://doc.madlib.net/v0.5/ ) for MADlib's user documentation. Please note that PyMADlib as of now is only compatible with MADlib v0.5. You can obtain MADlib v0.5 from [MADlib v0.5](https://github.com/madlib/madlib/archive/v0.5.tar.gz). We might add support to more recent versions of MADlib depending on adoption rate. Please email me if you have a strong case for an upgrade.
 
 
 ## Dependencies
@@ -50,7 +48,7 @@ that should look like so :
 
 ## Installation Instructions
 
-PyMADlib depends on `psycopg2` and `Pandas`. It is easiest to work with PyMADlib if you have `Anaconda Python`.
+PyMADlib depends on `MADlib`, `psycopg2` and `Pandas`. It is easiest to work with PyMADlib if you have `Anaconda Python`.
 
 ## Build Environment Setup on Mac OS X 10.8
 
