@@ -97,8 +97,8 @@ If the above command did not error out, then installation was successful.
 
 ## Usage Tutorial
 
-Visit [PyMADlib Tutorial](http://nbviewer.ipython.org/5275846) for a tutorial on using PyMADlib
-Also visit [PyMADlib IPython NB](https://gist.github.com/vatsan/5275846) to download the IPython NB tutorial
+Visit [PyMADlib Tutorial](http://nbviewer.ipython.org/gist/vatsan/dd88abb47c2fbd9e16bd) for a tutorial on using PyMADlib
+Also visit [PyMADlib IPython NB](https://gist.github.com/vatsan/dd88abb47c2fbd9e16bd) to download the IPython NB tutorial
 
 
 ## Running the Demos
