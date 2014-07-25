@@ -1,4 +1,5 @@
-A Python wrapper for MADlib - an open source library for scalable in-database machine learning algorithms
+A Python wrapper for MADlib - an open source library for scalable in-database machine learning algorithms.
+You can visit [PyMADlib's webpage](http://gopivotal.github.io/pymadlib/) for installation and usage tutorials.
 
 ## Algorithms
 
