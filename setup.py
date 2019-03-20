@@ -10,8 +10,8 @@ standard_exclude_directories = ('.*', 'CVS', '_darcs', './build',
                                 './dist', 'EGG-INFO', '*.egg-info')
 
 
-# (c) 2005 Ian Bicking and contributors; written for Paste (http://pythonpaste.org)
-# Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+# (c) 2005 Ian Bicking and contributors; written for Paste (https://web.archive.org/web/http%3A//pythonpaste.org/)
+# Licensed under the MIT license: https://www.opensource.org/licenses/mit-license.php
 # Note: you may want to copy this into your setup.py file verbatim, as
 # you can't import this from another package, when you don't know if
 # that package is installed yet.
@@ -98,12 +98,12 @@ setup(
     version='1.0',
     author='Srivatsan Ramanujam',
     author_email='vatsan.cs@utexas.edu',
-    url='http://vatsan.github.com/pymadlib',
+    url='https://vatsan.github.com/pymadlib',
     packages=find_packages(),
     package_data=find_package_data(only_in_packages=False,show_ignored=True),
     include_package_data=True,
     license='LICENSE.txt',
-    description='A Python wrapper for MADlib (http://madlib.net) - an open source library for scalable in-database machine learning algorithms',
+    description='A Python wrapper for MADlib (https://madlib.apache.org/) - an open source library for scalable in-database machine learning algorithms',
     long_description=open('README.txt').read(),
     install_requires=[
         "psycopg2 >= 2.4.5",

@@ -7,7 +7,7 @@
         3) SVM (regression & classification) and 
         4) K-Means & 
         5) PLDA 
-    Refer : http://doc.madlib.net/v0.5/ for MADlib's user documentation.
+    Refer : https://madlib.apache.org/docs/v0.5/ for MADlib's user documentation.
 '''
 from utils import pivotCategoricalColumns, convertsColsToArray
 import psycopg2
@@ -98,7 +98,7 @@ class SupervisedLearning(object):
 class LinearRegression(SupervisedLearning):
         ''' 
           Python Wrapper to invoke MADlib's Linear Regression Algorithm 
-          http://doc.madlib.net/v0.5/group__grp__linreg.html
+          https://madlib.apache.org/docs/v0.5/group__grp__linreg.html
         '''
         def __init__(self,conn):
             super(LinearRegression,self).__init__(conn)
@@ -184,7 +184,7 @@ class LinearRegression(SupervisedLearning):
 class LogisticRegression(SupervisedLearning):
         ''' 
         Python Wrapper to invoke MADlib's Logistic Regression Algorithm 
-        http://doc.madlib.net/v0.5/group__grp__logreg.html
+        https://madlib.apache.org/docs/v0.5/group__grp__logreg.html
         '''
         def __init__(self,conn):
             super(LogisticRegression,self).__init__(conn)
@@ -293,7 +293,7 @@ class LogisticRegression(SupervisedLearning):
 class SVM(SupervisedLearning):      
         ''' 
           Python Wrapper to invoke MADlib's SVM Algorithm 
-          http://doc.madlib.net/v0.5/group__grp__kernmach.html
+          https://madlib.apache.org/docs/v0.5/group__grp__kernmach.html
         '''
         def __init__(self,conn):
             super(SVM,self).__init__(conn)
@@ -494,7 +494,7 @@ class SVM(SupervisedLearning):
 class KMeans(object):
         ''' 
         Python Wrapper to invoke MADlib's KMeans Algorithm 
-        http://doc.madlib.net/v0.5/group__grp__kmeans.html
+        https://madlib.apache.org/docs/v0.5/group__grp__kmeans.html
         '''    
         def __init__(self,conn):
             self.dbconn = conn 
@@ -611,7 +611,7 @@ class KMeans(object):
 class PLDA(object):
         ''' 
         Python Wrapper to invoke MADlib's PLDA Algorithm 
-        http://doc.madlib.net/v0.5/group__grp__plda.html
+        https://madlib.apache.org/docs/v0.5/group__grp__plda.html
         '''    
         def __init__(self,conn):
             self.dbconn = conn 

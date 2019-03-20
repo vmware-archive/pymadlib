@@ -351,7 +351,7 @@ class ROCData(object):
 if __name__ == '__main__':
 	print "PyRoC - ROC Curve Generator"
 	print "By Marcel Pinheiro Caraciolo (@marcelcaraciolo)"
-	print "http://aimotion.bogspot.com\n"
+	print "http://ww1.bogspot.com\n"
 	from optparse import OptionParser
 	
 	parser = OptionParser()

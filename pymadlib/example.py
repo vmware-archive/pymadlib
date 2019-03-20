@@ -86,7 +86,7 @@ def linearRegressionDemo(conn):
     smat = scatter_matrix(predictions.get(['quality','prediction']), diagonal='kde')   
         
     # 1 b) Linear Regression with categorical variables 
-    # We'll use the auto_mpg dataset from UCI : http://archive.ics.uci.edu/ml/machine-learning-databases/autos/imports-85.names
+    # We'll use the auto_mpg dataset from UCI : https://archive.ics.uci.edu/ml/machine-learning-databases/autos/imports-85.names
     # make, fuel_type, fuel_system are all categorical variables, rest are real.
     #Train Linear Regression Model on a mixture of Numeric and Categorical Variables
     mdl_dict, mdl_params = lreg.train('public.auto_mpg_train',['1','height','width','length','highway_mpg','engine_size','make','fuel_type','fuel_system'],'price')
