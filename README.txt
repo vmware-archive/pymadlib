@@ -3,14 +3,14 @@ Python wrapper for MADlib
 Srivatsan Ramanujam <vatsan.cs@utexas.edu>, 3 Jan 2013
 This currently implements Linear regression, Logistic Regression, 
 SVM (regression & classification), K-Means and LDA algorithms of MADlib.
-Refer : http://doc.madlib.net/v0.5/ for MADlib's user documentation.
+Refer : https://madlib.apache.org/docs/v0.5/ for MADlib's user documentation.
 ================================================================================
 
 Dependencies : 
 ===============
 You'll need the python extension : psycopg2 to use PyMADlib.
   (i)  If you have matplotlib installed, you'll see Matplotlib visualizations for Linear Regression demo.
- (ii)  If you have installed networkx (http://networkx.github.com/download.html), you'll see a visualization of the k-means demo
+ (ii)  If you have installed networkx (https://networkx.github.com/download.html), you'll see a visualization of the k-means demo
 (iii)  PyROC (https://github.com/marcelcaraciolo/PyROC) is included in the source of this distribution with permission from its developer. You'll see a visualization of the ROC curves for Logistic Regression.
 
 Configurations:
@@ -56,8 +56,8 @@ Datasets packaged with this installation :
 =========================================
 PyMADlib packages publicly available datasets from the UCI machine learning repository and other sources.
 
-1) Wine quality dataset from UCI Machine Learning repository : http://archive.ics.uci.edu/ml/datasets/Wine+Quality
-2) Auto MPG dataset from UCI ML repository : http://archive.ics.uci.edu/ml/datasets/Auto+MPG
+1) Wine quality dataset from UCI Machine Learning repository : https://archive.ics.uci.edu/ml/datasets/Wine+Quality
+2) Auto MPG dataset from UCI ML repository : https://archive.ics.uci.edu/ml/datasets/Auto+MPG
 3) Obama-Romney second presidential debate (2012) transcripts for the LDA models. 
 
 
@@ -71,6 +71,6 @@ with installing psycopg2.
 Here are some blogs which discuss the issue and offer solutions:
 
 http://hardlifeofapo.com/psycopg2-and-postgresql-9-1-on-snow-leopard/
-http://www.initd.org/psycopg/articles/2010/11/11/links-about-building-psycopg-mac-os-x/
+https://www.initd.org/psycopg/articles/2010/11/11/links-about-building-psycopg-mac-os-x/
 
 

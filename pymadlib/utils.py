@@ -184,7 +184,7 @@ def __getColNamesAndTypesList__(cols,col_types_dict, col_distinct_vals_dict):
     '''
        Return a list of column names and types, where any categorical column in the original table have
        been 'binarized'. Dummy coding is used to convert categorical columns into dummy variables.
-       Refer: http://en.wikipedia.org/wiki/Categorical_variable#Dummy_coding
+       Refer: https://en.wikipedia.org/wiki/Categorical_variable#Dummy_coding
        
        Inputs:
        =======
@@ -278,7 +278,7 @@ def pivotCategoricalColumns(conn,table_name,cols,label='',col_distinct_vals_dict
        Take a table_name and a set of columns (some of which may be categorical 
        and return a new table, where the categorical columns have been pivoted.
        This method uses the "Dummy Coding" approach: 
-       http://en.wikipedia.org/wiki/Categorical_variable#Dummy_coding
+       https://en.wikipedia.org/wiki/Categorical_variable#Dummy_coding
        
        Inputs:
        =======

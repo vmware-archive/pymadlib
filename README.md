@@ -1,5 +1,5 @@
 A Python wrapper for MADlib - an open source library for scalable in-database machine learning algorithms.
-You can visit [PyMADlib's webpage](http://pivotalsoftware.github.io/pymadlib/) for installation and usage tutorials.
+You can visit [PyMADlib's webpage](https://pivotalsoftware.github.io/pymadlib/) for installation and usage tutorials.
 
 ## Algorithms
 
@@ -11,14 +11,14 @@ PyMADlib currently has wrappers for the following algorithms in MADlib (version 
 1. K-Means 
 1. LDA 
 
-Refer [MADlib User Docs](http://doc.madlib.net/v0.5/ ) for MADlib's user documentation. Please note that PyMADlib as of now is only compatible with MADlib v0.5. You can obtain MADlib v0.5 from [MADlib v0.5](https://github.com/madlib/madlib/archive/v0.5.tar.gz). We might add support to more recent versions of MADlib depending on adoption rate. Please email me if you have a strong case for an upgrade.
+Refer [MADlib User Docs](https://madlib.apache.org/docs/v0.5/ ) for MADlib's user documentation. Please note that PyMADlib as of now is only compatible with MADlib v0.5. You can obtain MADlib v0.5 from [MADlib v0.5](https://github.com/madlib/madlib/archive/v0.5.tar.gz). We might add support to more recent versions of MADlib depending on adoption rate. Please email me if you have a strong case for an upgrade.
 
 
 ## Dependencies
 
 1. You'll need the python extension _**psycopg2**_ to use PyMADlib.
 1. If you have matplotlib installed, you'll see Matplotlib visualizations for Linear Regression demo.
-1. If you have installed [networkx](http://networkx.github.com/download.html), you'll see a visualization of the k-means demo
+1. If you have installed [networkx](https://networkx.github.com/download.html), you'll see a visualization of the k-means demo
 1. [PyROC](https://github.com/marcelcaraciolo/PyROC) is included in the source of this distribution with permission from its developer. You'll see a visualization of the ROC curves for Logistic Regression.
 
 
@@ -53,7 +53,7 @@ PyMADlib depends on `MADlib`, `psycopg2` and `Pandas`. It is easiest to work wit
 
 ## Build Environment Setup on Mac OS X 10.8
 
-* Download & install [Anaconda-1.9.0-MacOSX-x86_64.pkg] (http://repo.continuum.io/archive/Anaconda-1.9.0-MacOSX-x86_64.pkg)
+* Download & install [Anaconda-1.9.0-MacOSX-x86_64.pkg] (https://repo.continuum.io/archive/Anaconda-1.9.0-MacOSX-x86_64.pkg)
 
 * Open a terminal and check if you have Anaconda Python & the package manager conda
 
@@ -62,7 +62,7 @@ PyMADlib depends on `MADlib`, `psycopg2` and `Pandas`. It is easiest to work wit
 >     vatsan-mac$ which conda
 >     /Users/vatsan/anaconda/bin/conda 
 
-* If you haven't installed PostgreSQL on your Mac already, you'll have to download & install `PostGreSQL` for Mac. This is so that we get some required libraries to compile the SQL Engine: psycopg2. The easiest way to install `PostGreSQL` on Mac is via `http://postgresapp.com/`. Once you've downloaded and installed PostGreSQL on Mac, it should typically be found under `/Library/PostgreSQL`
+* If you haven't installed PostgreSQL on your Mac already, you'll have to download & install `PostGreSQL` for Mac. This is so that we get some required libraries to compile the SQL Engine: psycopg2. The easiest way to install `PostGreSQL` on Mac is via `https://postgresapp.com/`. Once you've downloaded and installed PostGreSQL on Mac, it should typically be found under `/Library/PostgreSQL`
 
 >     vatsan-mac$ ls /Library/PostgreSQL/9.2/
 >     Library include pg_env.sh uninstall-postgresql.app
@@ -98,7 +98,7 @@ If the above command did not error out, then installation was successful.
 
 ## Usage Tutorial
 
-Visit [PyMADlib Tutorial](http://nbviewer.ipython.org/gist/vatsan/dd88abb47c2fbd9e16bd) for a tutorial on using PyMADlib
+Visit [PyMADlib Tutorial](https://nbviewer.ipython.org/gist/vatsan/dd88abb47c2fbd9e16bd) for a tutorial on using PyMADlib
 Also visit [PyMADlib IPython NB](https://gist.github.com/vatsan/dd88abb47c2fbd9e16bd) to download the IPython NB tutorial
 
 
@@ -137,9 +137,9 @@ Remember to close the Matplotlib windows that pop-up to continue with the rest o
 
 PyMADlib packages publicly available datasets from the UCI machine learning repository and other sources.
 
-1. [Wine quality dataset from UCI Machine Learning repository](http://archive.ics.uci.edu/ml/datasets/Wine+Quality)
-1. [Auto MPG dataset from UCI ML repository from UCI Machine Learning repository](http://archive.ics.uci.edu/ml/datasets/Auto+MPG)
-1. [Wine quality dataset from UCI Machine Learning repository](http://archive.ics.uci.edu/ml/datasets/Wine+Quality)
+1. [Wine quality dataset from UCI Machine Learning repository](https://archive.ics.uci.edu/ml/datasets/Wine+Quality)
+1. [Auto MPG dataset from UCI ML repository from UCI Machine Learning repository](https://archive.ics.uci.edu/ml/datasets/Auto+MPG)
+1. [Wine quality dataset from UCI Machine Learning repository](https://archive.ics.uci.edu/ml/datasets/Wine+Quality)
 1. Obama-Romney second presidential debate (2012) transcripts
 
 
