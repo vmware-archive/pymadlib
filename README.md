@@ -1,4 +1,4 @@
-A Python wrapper for MADlib - an open source library for scalable in-database machine learning algorithms.
+<h1> VMware has ended active development of this project, this repository will no longer be updated.</h1><br>A Python wrapper for MADlib - an open source library for scalable in-database machine learning algorithms.
 You can visit [PyMADlib's webpage](http://pivotalsoftware.github.io/pymadlib/) for installation and usage tutorials.
 
 ## Algorithms
